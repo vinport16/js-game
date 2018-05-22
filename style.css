@@ -1,0 +1,16 @@
+body{
+  padding: 0px;
+  margin: 5px;
+  background-color: lightblue;
+}
+
+canvas{
+  background-color: white;
+}
+
+div.display{
+  background-color: white;
+  float: right;
+  width: 29%;
+  height: 50%;
+}
