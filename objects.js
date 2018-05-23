@@ -221,7 +221,7 @@ function makeTower(){
   });
 
   canvas.addEventListener("click", function(event){
-    if(checkCollisions({type: "tower", position: getVector(event), radius: 5})){
+    if(checkCollisions({type: "tower", position: getVector(event), radius: 10})){
       clearListeners();
     }else{
       var tower = {};
