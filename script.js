@@ -4,14 +4,31 @@ function clearCanvas(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
-function drawCircle(x, y, r, fill){
+function clearListeners(){
+  var clone = canvas.cloneNode(true);
+  canvas.parentNode.replaceChild(clone, canvas);
+  canvas = clone;
+  ctx = canvas.getContext("2d");
+
+  drawEverything();
+}
+
+function drawCircle(position, r, fill, stroke){
 	ctx.beginPath();
-    ctx.arc(x, y, r, 0, 2 * Math.PI, false);
-    ctx.fillStyle = fill;
-    ctx.lineWidth = 0;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0)";
-    ctx.fill();
-    ctx.stroke();
+  ctx.arc(position.x, position.y, r, 0, 2 * Math.PI, false);
+  ctx.fillStyle = fill;
+  ctx.strokeStyle = stroke;
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawRectangle(tl, br, fill, stroke){
+  ctx.beginPath();
+  ctx.fillStyle = fill;
+  ctx.strokeStyle = stroke;
+  ctx.rect(tl.x, tl.y, br.x, br.y);
+  ctx.fill();
+  ctx.stroke();
 }
 
 function drawLine(x1, y1, x2, y2, fill){
@@ -23,6 +40,13 @@ function drawLine(x1, y1, x2, y2, fill){
 	ctx.stroke();
 }
 
+function getVector(e){
+  return {x: e.clientX - canvas.offsetLeft, y: e.clientY - canvas.offsetTop};
+}
+
+function subtract(v1, v2){
+  return {x: v1.x-v2.x, y: v1.y-v2.y};
+}
 // setup
 
 var canvas = document.getElementById("canvas");
@@ -32,8 +56,6 @@ canvas.height = document.body.clientHeight - 10 ;
 
 var ctx = canvas.getContext("2d");
 
-xcenter = canvas.width/2;
-ycenter = canvas.height/2;
 
 function printMousePos(event) {
   drawCircle(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop, 5, "red");
@@ -45,4 +67,4 @@ function drawHover(event){
 }
 
 //canvas.addEventListener("click", printMousePos); // this runs printMousePos every time the mouse clicks
-canvas.addEventListener("mousemove", drawHover); // this runs printMousePos every time the position of the mouse changes
+//canvas.addEventListener("mousemove", drawHover); // this runs printMousePos every time the position of the mouse changes

@@ -5,12 +5,44 @@ body{
 }
 
 canvas{
-  background-color: white;
+  background-color: black;
 }
 
 div.display{
   background-color: white;
   float: right;
   width: 29%;
-  height: 50%;
+  height: 100%;
+}
+
+table{
+  width: 100%;
+}
+
+button{
+  width: 100%;
+  border-radius: 10px;
+}
+
+div.textbox{
+  height: 95%;
+  width: 100%;
+}
+
+div.text{
+  padding: 5px;
+}
+
+div.energy{
+  height: 5%;
+  background-color: gray;
+}
+
+div.amount{
+  height: 100%;
+  background-color: green;
+  width: 8%;
+  color: white;
+  font-size: 18pt;
+  overflow-x: visible;
 }
