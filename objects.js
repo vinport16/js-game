@@ -205,9 +205,9 @@ function drawEverything(){
   for(var i = 0; i < objects.length; i++){
     var o = objects[i];
     if(o.type == "building"){
-      drawRectangle(o.topLeft,subtract(o.bottomRight,o.topLeft),"rgba(0,40,0,10)","rgba(100,255,255,100)");
+      drawBuilding(o);
     }else if(o.type == "tower"){
-      drawCircle(o.position,o.radius,"rgba(0,0,100,10)","rgba(255,255,100,100)");
+      drawTower(o);
     }
   }
   //next draw ships

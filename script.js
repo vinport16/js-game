@@ -42,8 +42,8 @@ function drawLine(v1, v2, stroke){
 	ctx.stroke();
 }
 
-function drawTower(){
-  drawCircle(o.position,o.radius,"rgba(0,0,100,10)","rgba(255,255,100,100)");
+function drawTower(o){
+  drawCircle(o.position,o.radius,"rgba(0,0,255,0.5)","rgba(255,255,100,1)");
 }
 
 function drawProtoTower(proto){
@@ -61,8 +61,8 @@ function drawProtoTower(proto){
   }
 }
 
-function drawBuilding(){
-  drawRectangle(o.topLeft,subtract(o.bottomRight,o.topLeft),"rgba(0,40,0,10)","rgba(100,255,255,100)");
+function drawBuilding(o){
+  drawRectangle(o.topLeft,subtract(o.bottomRight,o.topLeft),"rgba(0,255,0,0.1)","rgba(100,255,255,1)");
 }
 
 function drawProtoBuilding(proto){
