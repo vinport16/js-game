@@ -15,7 +15,8 @@ tower:
  - health (integer)
  - fireRate (integer) : max fires per second
  - fireEnergy (integer) : amount of energy needed per fire
- - fire (function)
+ - projectile (object or false)
+ - laser (object or false)
 
 projectile:
  - type ("projectile")
@@ -63,6 +64,42 @@ ship:
 
 var objects = []; // all of the objects under your control
 var enemies = []; // all of the objects under enemy control
+
+function getCenter(object){
+  var center;
+  if(object.type == "building"){
+    return {x: (object.topLeft.x + object.bottomRight.x)/2, y:(object.topLeft.y + object.bottomRight.y)/2 };
+  }else if(object.type == "tower" || object.type == "projectile" || object.type == "ship"){
+    return object.position;
+  }
+}
+
+function connect(o1,o2){
+  o1.connected.push(o2);
+  o2.connected.push(o1);
+}
+
+function connectToAll(o1){
+  var center1 = getCenter(o1);
+  for(var i = 0; i < objects.length; i++){
+    var o2 = objects[i];
+    var center2 = getCenter(o2);
+    if(distance(center1,center2) < o1.energyRange + o2.energyRange){
+      connect(o1,o2);
+    }
+  }
+}
+
+function protoConnect(o1){
+  var center1 = getCenter(o1);
+  for(var i = 0; i < objects.length; i++){
+    var o2 = objects[i];
+    var center2 = getCenter(o2);
+    if(distance(center1,center2) < o1.energyRange + o2.energyRange){
+      o1.connected.push(o2);
+    }
+  }
+}
 
 function rectanglesOverlap(aw, ah, acx, acy, bw, bh, bcx, bcy){
   var w = 0.5 * (aw + bw);
@@ -154,6 +191,17 @@ function checkCollisions(object){
 
 function drawEverything(){
   clearCanvas();
+  //first draw connections
+
+  for(var i = 0; i < objects.length; i++){
+    //we're just gonna be lazy and draw all of the connections twice
+    o1 = objects[i];
+    for(var j = 0; j < o1.connected.length; j++){
+      var o2 = o1.connected[j];
+      drawLine(getCenter(o1),getCenter(o2),"rgba(20,80,200,0.3)");
+    }
+  }
+  //next draw buildings and towers
   for(var i = 0; i < objects.length; i++){
     var o = objects[i];
     if(o.type == "building"){
@@ -162,6 +210,12 @@ function drawEverything(){
       drawCircle(o.position,o.radius,"rgba(0,0,100,10)","rgba(255,255,100,100)");
     }
   }
+  //next draw ships
+
+  //next draw lasers
+
+  //next draw projectiles
+
 }
 
 function makeBuilding(){
@@ -171,11 +225,8 @@ function makeBuilding(){
 
     canvas.addEventListener("mousemove", function(event){
       drawEverything();
-      if(checkCollisions({type: "building",topLeft: tl, bottomRight: getVector(event)})){
-        drawRectangle(tl,subtract(getVector(event),tl),"rgba(0,0,0,0)","rgba(255,100,100,100)");
-      }else{
-        drawRectangle(tl,subtract(getVector(event),tl),"rgba(0,0,0,0)","rgba(100,255,100,100)");
-      }
+      var proto = {type: "building",topLeft: tl, bottomRight: getVector(event), energyRange: 100};
+      drawProtoBuilding(proto);
     });
 
     canvas.addEventListener("click", function(event){
@@ -187,7 +238,7 @@ function makeBuilding(){
         building.name = "yolo";
         building.topLeft = tl;
         building.bottomRight = getVector(event);
-        building.energyRange = 50;
+        building.energyRange = 100;
         building.connected = [];
         building.maxHealth = 100;
         building.health = building.maxHealth;
@@ -196,7 +247,7 @@ function makeBuilding(){
         building.energy = 0;
         building.vital = false;
 
-        // connect buildings
+        connectToAll(building);
 
         objects.push(building);
 
@@ -213,11 +264,8 @@ function makeTower(){
 
   canvas.addEventListener("mousemove", function(event){
     drawEverything();
-    if(checkCollisions({type: "tower", position: getVector(event), radius: 10})){ // hardcoded radius !!
-      drawCircle(getVector(event),10,"rgba(0,0,0,0)","rgba(255,100,100,100)");
-    }else{
-      drawCircle(getVector(event),10,"rgba(0,0,0,0)","rgba(100,255,100,100)");
-    }
+    var proto = {type: "tower", position: getVector(event), radius: 10, energyRange: 50};
+    drawProtoTower(proto);
   });
 
   canvas.addEventListener("click", function(event){
@@ -237,7 +285,26 @@ function makeTower(){
       tower.fireEnergy = 1;
       tower.fire = null; // put fire function here (?) !!
 
-      // connect to buildings/towers
+      var p = {};
+      p.type = "projectile";
+      p.position = tower.position;
+      p.velocity = 10;
+      p.target = false;
+      p.damage = 15;
+      p.color = "red";
+
+      tower.projectile = p;
+
+      var laser = {};
+      laser.type = "laser";
+      laser.startObject = tower;
+      laser.endObject = false;
+      laser.damage = 10;
+      laser.duration = 3;
+
+      tower.laser = laser;
+
+      connectToAll(tower);
 
       objects.push(tower);
 
