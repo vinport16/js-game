@@ -8,9 +8,11 @@ tower:
  - type ("tower")
  - position (vector)
  - radius (integer)
+ - color (string)
  - range (integer) : firing radius
  - energyRange (integer) : distance that energy can be transfered to/from
  - connected (array of objects) : things that can send energy to/from
+ - activeConnections (array of objects) : things that it is currently drawing energy from
  - maxHealth (integer)
  - health (integer)
  - fireRate (integer) : max fires per second
@@ -40,6 +42,7 @@ building:
  - bottomRight (vector) : two corners define a rectangle
  - energyRange (integer) : distance that energy can be transfered to/from
  - connected (array of objects) : things that can send energy to/from
+ - activeConnections (array of objects) : things that it is currently drawing energy from
  - maxHealth (integer)
  - health (integer)
  - energyRate (float) : how much energy can be produced per pixel per second
@@ -58,7 +61,8 @@ ship:
  - moveTarget (object) : thing it's moving towards
  - fireTarget (object) : thing it's firing at
  - fireRate (integer) : max fires per second
- - fire (function)
+ - projectile (object)
+ - laser (object)
 
 */
 
@@ -211,11 +215,32 @@ function drawEverything(){
     }
   }
   //next draw ships
-
+  for(var i = 0; i < enemies.length; i++){
+    var e = enemies[i];
+    if(e.type == "ship"){
+      drawShip(e);
+    }
+  }
   //next draw lasers
 
   //next draw projectiles
 
+}
+
+function step(){
+  //move projectiles
+
+  //check projectile collisions, do damage
+
+  //laser damage
+
+  //ships move
+
+  //towers get energy, fire
+
+  //ships fire
+
+  //
 }
 
 function makeBuilding(){
@@ -240,6 +265,7 @@ function makeBuilding(){
         building.bottomRight = getVector(event);
         building.energyRange = 100;
         building.connected = [];
+        building.activeConnections = [];
         building.maxHealth = 100;
         building.health = building.maxHealth;
         building.energyRate = 0.02;
@@ -260,49 +286,20 @@ function makeBuilding(){
 
 document.getElementById("building").addEventListener("click",makeBuilding);
 
-function makeTower(){
+function makeTower(tower){
 
   canvas.addEventListener("mousemove", function(event){
     drawEverything();
-    var proto = {type: "tower", position: getVector(event), radius: 10, energyRange: 50};
-    drawProtoTower(proto);
+    //var proto = {type: "tower", position: getVector(event), radius: 10, energyRange: 50, range:70};
+    tower.position = getVector(event);
+    drawProtoTower(tower);
   });
 
   canvas.addEventListener("click", function(event){
-    if(checkCollisions({type: "tower", position: getVector(event), radius: 10})){
+    tower.position = getVector(event);
+    if(checkCollisions(tower)){
       clearListeners();
     }else{
-      var tower = {};
-      tower.type = "tower";
-      tower.name = "ha-ha";
-      tower.position = getVector(event);
-      tower.radius = 10;
-      tower.energyRange = 50;
-      tower.connected = [];
-      tower.maxHealth = 50;
-      tower.health = tower.maxHealth;
-      tower.fireRate = 0.5;
-      tower.fireEnergy = 1;
-      tower.fire = null; // put fire function here (?) !!
-
-      var p = {};
-      p.type = "projectile";
-      p.position = tower.position;
-      p.velocity = 10;
-      p.target = false;
-      p.damage = 15;
-      p.color = "red";
-
-      tower.projectile = p;
-
-      var laser = {};
-      laser.type = "laser";
-      laser.startObject = tower;
-      laser.endObject = false;
-      laser.damage = 10;
-      laser.duration = 3;
-
-      tower.laser = laser;
 
       connectToAll(tower);
 
@@ -314,12 +311,115 @@ function makeTower(){
 
 }
 
-document.getElementById("tower").addEventListener("click",makeTower);
+function makeDefaultTower(){
+  var tower = {};
+  tower.type = "tower";
+  tower.name = "ha-ha";
+  tower.position = null;
+  tower.radius = 10;
+  tower.color = "rgba(0,0,255,0.5)";
+  tower.range = 110;
+  tower.energyRange = 50;
+  tower.connected = [];
+  tower.activeConnections = [];
+  tower.maxHealth = 50;
+  tower.health = tower.maxHealth;
+  tower.fireRate = 0.5;
+  tower.fireEnergy = 1;
+  tower.fire = null; // put fire function here (?) !!
 
+  var p = {};
+  p.type = "projectile";
+  p.position = null;
+  p.velocity = 10;
+  p.target = false;
+  p.damage = 15;
+  p.color = "red";
 
+  tower.projectile = p;
 
+  var laser = {};
+  laser.type = "laser";
+  laser.startObject = tower;
+  laser.endObject = false;
+  laser.damage = 10;
+  laser.duration = 3;
 
+  tower.laser = laser;
 
+  makeTower(tower);
+}
+
+function makeConnectionTower(){
+  var tower = {};
+  tower.type = "tower";
+  tower.name = "connect-me";
+  tower.position = null;
+  tower.radius = 3;
+  tower.color = "rgba(255,0,255,0.5)";
+  tower.range = 0;
+  tower.energyRange = 70;
+  tower.connected = [];
+  tower.activeConnections = [];
+  tower.maxHealth = 60;
+  tower.health = tower.maxHealth;
+  tower.fireRate = 0;
+  tower.fireEnergy = 0;
+  tower.fire = null; // put fire function here (?) !!
+
+  var p = {};
+  p.type = "projectile";
+  p.position = null;
+  p.velocity = 0;
+  p.target = false;
+  p.damage = 0;
+  p.color = "red";
+
+  tower.projectile = p;
+
+  var laser = {};
+  laser.type = "laser";
+  laser.startObject = tower;
+  laser.endObject = false;
+  laser.damage = 0;
+  laser.duration = 0;
+
+  tower.laser = laser;
+
+  makeTower(tower);
+}
+
+document.getElementById("tower").addEventListener("click",makeDefaultTower);
+document.getElementById("relay").addEventListener("click",makeConnectionTower);
+
+function makeShip(){//position,target){
+  ship = {};
+  ship.type = "ship";
+  ship.position = {x: 10, y: 10}; //position;
+  ship.velocity = 2;
+  ship.radius = 8;
+  ship.range = 45;
+  ship.maxHealth = 10;
+  ship.health = ship.maxHealth;
+  ship.moveTarget = objects[0];//target;
+  ship.fireTarget = false;
+  ship.fireRate = 4;
+
+  var p = {};
+  p.type = "projectile";
+  p.position = false;
+  p.velocity = 10;
+  p.target = false;
+  p.damage = 15;
+  p.color = "yellow";
+
+  ship.projectile = p;
+  ship.laser = false;
+
+  enemies.push(ship);
+}
+
+document.getElementById("ship").addEventListener("click",makeShip);
 
 
 

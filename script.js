@@ -37,13 +37,14 @@ function drawLine(v1, v2, stroke){
 	ctx.beginPath();
 	ctx.moveTo(v1.x,v1.y);
 	ctx.lineTo(v2.x,v2.y);
-	ctx.lineWidth = 5;
+	ctx.lineWidth = 2;
 	ctx.strokeStyle = stroke;
 	ctx.stroke();
 }
 
 function drawTower(o){
-  drawCircle(o.position,o.radius,"rgba(0,0,255,0.5)","rgba(255,255,100,1)");
+  drawCircle(o.position,o.radius,o.color,"rgba(255,255,100,1)");
+  drawCircle(o.position, o.range, "rgba(0,255,0,0.08)", "rgba(255,255,255,0.0)");
 }
 
 function drawProtoTower(proto){
@@ -52,6 +53,8 @@ function drawProtoTower(proto){
   }else{
     drawCircle(proto.position,proto.radius,"rgba(0,0,0,0)","rgba(100,255,100,100)");
   }
+
+  //draw connections
   proto.connected = [];
   protoConnect(proto);
 
@@ -59,6 +62,9 @@ function drawProtoTower(proto){
     var o = proto.connected[j];
     drawLine(getCenter(proto),getCenter(o),"rgba(20,80,200,0.3)");
   }
+
+  //draw firing radius
+  drawCircle(proto.position, proto.range, "rgba(0,0,0,0)", "rgba(255,255,255,0.6)");
 }
 
 function drawBuilding(o){
@@ -71,6 +77,8 @@ function drawProtoBuilding(proto){
   }else{
     drawRectangle(proto.topLeft,subtract(proto.bottomRight,proto.topLeft),"rgba(0,0,0,0)","rgba(100,255,100,100)");
   }
+
+  //draw connections
   proto.connected = [];
   protoConnect(proto);
 
@@ -78,6 +86,10 @@ function drawProtoBuilding(proto){
     var o = proto.connected[j];
     drawLine(getCenter(proto),getCenter(o),"rgba(20,80,200,0.3)");
   }
+}
+
+function drawShip(o){
+  drawCircle(o.position,o.radius,"rgba(255,0,0,0.6)","rgba(255,255,255,0.3)");
 }
 
 function getVector(e){
@@ -100,15 +112,14 @@ canvas.height = document.body.clientHeight - 10 ;
 
 var ctx = canvas.getContext("2d");
 
+var paused = false;
+document.getElementById("pause").addEventListener("click",function(){paused = !paused;});
 
-function printMousePos(event) {
-  drawCircle(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop, 5, "red");
-}
 
-function drawHover(event){
-  clearCanvas();
-  drawCircle(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop, 15, "red");
-}
 
-//canvas.addEventListener("click", printMousePos); // this runs printMousePos every time the mouse clicks
-//canvas.addEventListener("mousemove", drawHover); // this runs printMousePos every time the position of the mouse changes
+
+
+
+
+
+// ok
