@@ -25,6 +25,7 @@ projectile:
  - position (vector)
  - radius (integer)
  - velocity (vector)
+ - speed (integer)
  - target (object or false) : for seeking projectiles
  - damage (integer)
  - color (string)
@@ -231,8 +232,11 @@ function getProjectileCollision(p){ //returns the enemy that the projectile has 
 }
 
 function moveProjectile(p){
+  if(p.target.destroyed){
+    p.target = false;
+  }
   if(p.target){
-    e.velocity = multiply(unitVector(subtract(getCenter(p.target),p.position)),p.velocity);
+    p.velocity = multiply(unitVector(subtract(getCenter(p.target),p.position)),p.speed);
   }
   p.position = add(p.position,p.velocity);
 }
@@ -289,6 +293,7 @@ function fire(o, target, enemy){
   proj.position = o.position;
   proj.radius = o.projectile.radius;
   proj.velocity = multiply(unitVector(subtract(getCenter(target),o.position)), o.projectile.speed);
+  proj.speed = o.projectile.speed;
   proj.target = false;
   if(o.projectile.target){
     proj.target = target;
@@ -329,6 +334,21 @@ function shipCheckAndFire(ship){
       }
     }
   }
+}
+
+function getClosestObject(e){
+  var closest = false;
+  for(var i = 0; i < objects.length; i++){
+    var o = objects[i];
+    if(o.type != "projectile"){
+      if(!closest){
+        closest = o;
+      }else if(distance(getCenter(o),e.position) < distance(getCenter(closest),e.position)){
+        closest = o;
+      }
+    }
+  }
+  return closest;
 }
 
 function drawEverything(){
@@ -409,7 +429,14 @@ function step(){
   for(var i = 0; i < enemies.length; i++){
     e = enemies[i];
     if(e.type == "ship"){
-      e.position = add(e.position,multiply(unitVector(subtract(getCenter(e.moveTarget),e.position)),e.velocity));
+      if(e.moveTarget.destroyed){
+        e.moveTarget = getClosestObject(e);
+      }
+      if(e.moveTarget){
+        e.position = add(e.position,multiply(unitVector(subtract(getCenter(e.moveTarget),e.position)),e.velocity));
+      }else{
+        e.moveTarget = getClosestObject(e);
+      }
     }
   }
 
@@ -535,7 +562,7 @@ function makeDefaultTower(){
   p.radius = 4;
   p.speed = 10;
   p.velocity = null;
-  p.target = false;
+  p.target = true;
   p.damage = 4;
   p.color = "red";
 
@@ -597,16 +624,16 @@ function makeConnectionTower(){
 document.getElementById("tower").addEventListener("click",makeDefaultTower);
 document.getElementById("relay").addEventListener("click",makeConnectionTower);
 
-function makeShip(){//position,target){
+function makeShip(){
   ship = {};
   ship.type = "ship";
-  ship.position = {x: 10, y: 10}; //position;
+  ship.position = {x: (10+Math.random()*30), y: (10+Math.random()*30)};
   ship.velocity = 2;
   ship.radius = 8;
   ship.range = 45;
   ship.maxHealth = 70;
   ship.health = ship.maxHealth;
-  ship.moveTarget = objects[0];//target;
+  ship.moveTarget = getClosestObject(ship);
   ship.fireTarget = false;
   ship.fireRate = 4;
 
