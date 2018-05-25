@@ -92,6 +92,16 @@ function drawShip(o){
   drawCircle(o.position,o.radius,"rgba(255,0,0,0.6)","rgba(255,255,255,0.3)");
 }
 
+function drawProjectile(p){
+  drawCircle(p.position,p.radius,p.color,"rgba(0,0,0,0)");
+}
+
+function drawEnemyProjectile(p){
+  drawCircle(p.position,p.radius,p.color,"rgba(255,0,0,0.5)");
+}
+
+var zeroVector = {x:0,y:0};
+
 function getVector(e){
   return {x: e.clientX - canvas.offsetLeft, y: e.clientY - canvas.offsetTop};
 }
@@ -100,8 +110,24 @@ function subtract(v1, v2){
   return {x: v1.x-v2.x, y: v1.y-v2.y};
 }
 
+function add(v1, v2){
+  return {x: v1.x+v2.x, y: v1.y+v2.y};
+}
+
+function divide(v1,n){ //divide a vector by a number
+  return {x: v1.x/n, y: v1.y/n};
+}
+
+function multiply(v1,n){ //multiply a vector by a number
+  return {x: v1.x*n, y: v1.y*n};
+}
+
 function distance(v1, v2){
   return Math.sqrt( (v1.x-v2.x)*(v1.x-v2.x) + (v1.y-v2.y)*(v1.y-v2.y) );
+}
+
+function unitVector(v){
+  return divide(v, distance(zeroVector,v));
 }
 // setup
 

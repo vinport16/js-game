@@ -23,6 +23,7 @@ tower:
 projectile:
  - type ("projectile")
  - position (vector)
+ - radius (integer)
  - velocity (vector)
  - target (object or false) : for seeking projectiles
  - damage (integer)
@@ -186,25 +187,146 @@ function checkCollisions(object){
         return true;
       }
 
-    }else{
-      console.log("invalid type! -> "+object.type+" or "+o.type);
     }
   }
   return false;
 }
 
+function getEnemyProjectileCollision(p){ //returns the object that the projectile has collided with and the index of that object in objects[]
+  for(var i = 0; i < objects.length; i++){
+    var o = objects[i];
+    if(o.type == "tower"){
+
+      var distance = Math.sqrt( (p.position.x-o.position.x)*(p.position.x-o.position.x) + (p.position.y-o.position.y)*(p.position.y-o.position.y) );
+      if(distance < p.radius+o.radius){
+        return [o,i];
+      }
+
+    }else if(o.type == "building"){
+
+      if(buildingTowerOverlap(o,object)){
+        return [o,i];
+      }
+
+    }
+  }
+  return false;
+}
+
+function getProjectileCollision(p){ //returns the enemy that the projectile has collided with and the index of that enemy in enemies[]
+  for(var i = 0; i < enemies.length; i++){
+    var o = enemies[i];
+    if(o.type == "tower" || o.type == "ship"){
+      if(distance(p.position,o.position) < p.radius+o.radius){
+        return [o,i];
+      }
+    }else if(o.type == "building"){
+
+      if(buildingTowerOverlap(o,object)){
+        return [o,i];
+      }
+    }
+  }
+  return false;
+}
+
+function moveProjectile(p){
+  if(p.target){
+    e.velocity = multiply(unitVector(subtract(getCenter(p.target),p.position)),p.velocity);
+  }
+  p.position = add(p.position,p.velocity);
+}
+
+function handleCollisions(){
+  for(var i = 0; i < objects.length; i++){
+    o = objects[i];
+    if(o.type == "projectile"){
+      collision = getProjectileCollision(o);
+      if(collision){
+        collision[0].health -= o.damage;
+        objects.splice(i,1);
+        if(collision[0].health <= 0){
+          enemies.splice(collision[1],1); // remove destroyed enemy from game
+        }
+      }
+    }
+  }
+  for(var i = 0; i < enemies.length; i++){
+    e = enemies[i];
+    if(e.type == "projectile"){
+      collision = getProjectileCollision(e);
+      if(collision){
+        collision[0].health -= e.damage;
+        enemies.splice(i,1);
+        if(collision[0].health <= 0){
+          objects.splice(collision[1],1); // remove destroyed object from game
+        }
+      }
+    }
+  }
+}
+
+function checkVisibility(o,target){
+  if(target.type == "building"){
+    if(buildingTowerOverlap(target,{radius:o.range, position:o.position})){
+      return true;
+    }
+  }else{
+    if(distance(getCenter(o),getCenter(target)) < o.range){
+      return true;
+    }
+  }
+  return false;
+}
+
+function fire(o, target, enemy){
+  proj = {};
+  proj.type = "projectile";
+  proj.position = o.position;
+  proj.radius = o.projectile.radius;
+  proj.velocity = multiply(unitVector(subtract(target.position,o.position)), o.projectile.speed);
+  proj.target = false;
+  if(o.projectile.target){
+    proj.target = target;
+  }
+  proj.damage = o.projectile.damage;
+  proj.color = o.projectile.color;
+
+  if(enemy){
+    enemies.push(proj);
+  }else{
+    objects.push(proj);
+  }
+}
+
+function towerCheckAndFire(tower){
+  for(var i = 0; i < enemies.length; i++){
+    e = enemies[i];
+    if(checkVisibility(tower,e)){
+
+      //allocate energy ?? !!
+
+      if(Math.random() > 0.9){
+        fire(tower,e,false);
+      }
+    }
+  }
+}
+
 function drawEverything(){
   clearCanvas();
   //first draw connections
-
   for(var i = 0; i < objects.length; i++){
     //we're just gonna be lazy and draw all of the connections twice
     o1 = objects[i];
-    for(var j = 0; j < o1.connected.length; j++){
-      var o2 = o1.connected[j];
-      drawLine(getCenter(o1),getCenter(o2),"rgba(20,80,200,0.3)");
+    if(o1.type == "building" || o1.type == "tower"){
+      for(var j = 0; j < o1.connected.length; j++){
+        var o2 = o1.connected[j];
+        drawLine(getCenter(o1),getCenter(o2),"rgba(20,80,200,0.3)");
+      }
     }
   }
+
   //next draw buildings and towers
   for(var i = 0; i < objects.length; i++){
     var o = objects[i];
@@ -214,6 +336,7 @@ function drawEverything(){
       drawTower(o);
     }
   }
+
   //next draw ships
   for(var i = 0; i < enemies.length; i++){
     var e = enemies[i];
@@ -221,26 +344,68 @@ function drawEverything(){
       drawShip(e);
     }
   }
+
   //next draw lasers
 
   //next draw projectiles
-
+  for(var i = 0; i < objects.length; i++){
+    o = objects[i];
+    if(o.type == "projectile"){
+      drawProjectile(o);
+    }
+  }
+  for(var i = 0; i < enemies.length; i++){
+    e = enemies[i];
+    if(e.type == "projectile"){
+      drawEnemyProjectile(e);
+    }
+  }
 }
 
 function step(){
   //move projectiles
+  for(var i = 0; i < objects.length; i++){
+    o = objects[i];
+    if(o.type == "projectile"){
+      moveProjectile(o);
+      //delete projectiles that are far off screen
+      if(o.position.x < -1000 || o.position.y < -1000 || o.position.x > 1000+canvas.width || o.position.y > 1000+canvas.height ){
+        objects.splice(i,1);
+      }
+    }
+  }
+  for(var i = 0; i < enemies.length; i++){
+    e = enemies[i];
+    if(e.type == "projectile"){
+      moveProjectile(e);
+    }
+  }
 
   //check projectile collisions, do damage
+  handleCollisions();
 
   //laser damage
 
   //ships move
+  for(var i = 0; i < enemies.length; i++){
+    e = enemies[i];
+    if(e.type == "ship"){
+      e.position = add(e.position,multiply(unitVector(subtract(getCenter(e.moveTarget),e.position)),e.velocity));
+    }
+  }
 
-  //towers get energy, fire
+  //towers fire
+  for(var i = 0; i < objects.length; i++){
+    o = objects[i];
+    if(o.type == "tower"){
+      towerCheckAndFire(o);
+    }
+  }
 
   //ships fire
 
-  //
+  //draw
+  drawEverything();
 }
 
 function makeBuilding(){
@@ -331,9 +496,11 @@ function makeDefaultTower(){
   var p = {};
   p.type = "projectile";
   p.position = null;
-  p.velocity = 10;
+  p.radius = 4;
+  p.speed = 10;
+  p.velocity = null;
   p.target = false;
-  p.damage = 15;
+  p.damage = 4;
   p.color = "red";
 
   tower.projectile = p;
@@ -370,7 +537,9 @@ function makeConnectionTower(){
   var p = {};
   p.type = "projectile";
   p.position = null;
-  p.velocity = 0;
+  p.speed = 0;
+  p.radius = 0;
+  p.velocity = null;
   p.target = false;
   p.damage = 0;
   p.color = "red";
@@ -399,7 +568,7 @@ function makeShip(){//position,target){
   ship.velocity = 2;
   ship.radius = 8;
   ship.range = 45;
-  ship.maxHealth = 10;
+  ship.maxHealth = 70;
   ship.health = ship.maxHealth;
   ship.moveTarget = objects[0];//target;
   ship.fireTarget = false;
@@ -408,7 +577,9 @@ function makeShip(){//position,target){
   var p = {};
   p.type = "projectile";
   p.position = false;
-  p.velocity = 10;
+  p.radius = 3;
+  p.speed = 8;
+  p.velocity = null;
   p.target = false;
   p.damage = 15;
   p.color = "yellow";
@@ -417,6 +588,7 @@ function makeShip(){//position,target){
   ship.laser = false;
 
   enemies.push(ship);
+  drawEverything();
 }
 
 document.getElementById("ship").addEventListener("click",makeShip);

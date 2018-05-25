@@ -6,10 +6,10 @@ function sleep(ms) {
 async function main(){
   while(true){
     while(!paused){
-      console.log("step");
-      await sleep(500);
+      step();
+      await sleep(100);
     }
-    await sleep(500);
+    await sleep(100);
   }
 }
 main();
