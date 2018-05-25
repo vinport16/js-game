@@ -204,7 +204,7 @@ function getEnemyProjectileCollision(p){ //returns the object that the projectil
 
     }else if(o.type == "building"){
 
-      if(buildingTowerOverlap(o,object)){
+      if(buildingTowerOverlap(o,p)){
         return [o,i];
       }
 
@@ -244,8 +244,10 @@ function handleCollisions(){
       collision = getProjectileCollision(o);
       if(collision){
         collision[0].health -= o.damage;
+        o.destroyed = true;
         objects.splice(i,1);
         if(collision[0].health <= 0){
+          collision[0].destroyed = true;
           enemies.splice(collision[1],1); // remove destroyed enemy from game
         }
       }
@@ -254,11 +256,13 @@ function handleCollisions(){
   for(var i = 0; i < enemies.length; i++){
     e = enemies[i];
     if(e.type == "projectile"){
-      collision = getProjectileCollision(e);
+      collision = getEnemyProjectileCollision(e);
       if(collision){
         collision[0].health -= e.damage;
+        e.destroyed = true;
         enemies.splice(i,1);
         if(collision[0].health <= 0){
+          collision[0].destroyed = true;
           objects.splice(collision[1],1); // remove destroyed object from game
         }
       }
@@ -284,7 +288,7 @@ function fire(o, target, enemy){
   proj.type = "projectile";
   proj.position = o.position;
   proj.radius = o.projectile.radius;
-  proj.velocity = multiply(unitVector(subtract(target.position,o.position)), o.projectile.speed);
+  proj.velocity = multiply(unitVector(subtract(getCenter(target),o.position)), o.projectile.speed);
   proj.target = false;
   if(o.projectile.target){
     proj.target = target;
@@ -302,12 +306,26 @@ function fire(o, target, enemy){
 function towerCheckAndFire(tower){
   for(var i = 0; i < enemies.length; i++){
     e = enemies[i];
-    if(checkVisibility(tower,e)){
+    if(e.type != "projectile" && checkVisibility(tower,e)){
 
       //allocate energy ?? !!
 
       if(Math.random() > 0.9){
         fire(tower,e,false);
+      }
+    }
+  }
+}
+
+function shipCheckAndFire(ship){
+  for(var i = 0; i < objects.length; i++){
+    o = objects[i];
+    if(o.type != "projectile" && checkVisibility(ship,o)){
+
+      //allocate energy ?? !!
+
+      if(Math.random() > 0.9){
+        fire(ship,o,true);
       }
     }
   }
@@ -370,6 +388,7 @@ function step(){
       moveProjectile(o);
       //delete projectiles that are far off screen
       if(o.position.x < -1000 || o.position.y < -1000 || o.position.x > 1000+canvas.width || o.position.y > 1000+canvas.height ){
+        o.destroyed = true;
         objects.splice(i,1);
       }
     }
@@ -403,6 +422,23 @@ function step(){
   }
 
   //ships fire
+  for(var i = 0; i < enemies.length; i++){
+    e = enemies[i];
+    if(e.type == "ship"){
+      shipCheckAndFire(e);
+    }
+  }
+
+  //remove connections to objects that have been destroyed
+  for(var i = 0; i < objects.length; i++){
+    if(objects[i].connected != undefined){
+      for(var c = objects[i].connected.length-1; c >= 0; c--){
+        if(objects[i].connected[c].destroyed){
+          objects[i].connected.splice(c,1);
+        }
+      }
+    }
+  }
 
   //draw
   drawEverything();

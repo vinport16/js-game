@@ -139,7 +139,22 @@ canvas.height = document.body.clientHeight - 10 ;
 var ctx = canvas.getContext("2d");
 
 var paused = false;
-document.getElementById("pause").addEventListener("click",function(){paused = !paused;});
+function pause(){
+  paused = !paused;
+  if(!paused){
+    document.getElementById("building").disabled = true;
+    document.getElementById("tower").disabled = true;
+    document.getElementById("relay").disabled = true;
+    document.getElementById("pause").innerHTML = "pause";
+  }else{
+    document.getElementById("building").disabled = false;
+    document.getElementById("tower").disabled = false;
+    document.getElementById("relay").disabled = false;
+    document.getElementById("pause").innerHTML = "resume";
+  }
+}
+
+document.getElementById("pause").addEventListener("click",pause);
 
 
 

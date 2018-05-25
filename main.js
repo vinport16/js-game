@@ -4,6 +4,7 @@ function sleep(ms) {
 }
 
 async function main(){
+  pause();
   while(true){
     while(!paused){
       step();
