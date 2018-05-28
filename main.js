@@ -8,9 +8,11 @@ async function main(){
   while(true){
     while(!paused){
       step();
-      await sleep(100);
+      await sleep(50);
     }
-    await sleep(100);
+    await sleep(50);
   }
 }
 main();
+
+document.getElementById("other").addEventListener("click",step);

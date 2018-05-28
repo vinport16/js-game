@@ -69,6 +69,11 @@ function drawProtoTower(proto){
 
 function drawBuilding(o){
   drawRectangle(o.topLeft,subtract(o.bottomRight,o.topLeft),"rgba(0,255,0,0.1)","rgba(100,255,255,1)");
+  var p1 = subtract(o.topLeft,{x:0,y:3});
+  var p2 = {x:o.bottomRight.x,y:p1.y};
+  drawLine(p1,p2,"rgba(100,100,100,1)");
+  p2.x = p1.x + (o.energy/o.energyMax)*(p2.x-p1.x);
+  drawLine(p1,p2,"rgba(100,200,100,1)");
 }
 
 function drawProtoBuilding(proto){

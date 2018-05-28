@@ -312,10 +312,8 @@ function towerCheckAndFire(tower){
   for(var i = 0; i < enemies.length; i++){
     e = enemies[i];
     if(e.type != "projectile" && checkVisibility(tower,e)){
-
-      //allocate energy ?? !!
-
-      if(Math.random() > 0.9){
+      // need to do cooldown time !!
+      if(Math.random() > 0.9 && getEnergyFor(tower,tower.fireEnergy)){
         fire(tower,e,false);
       }
     }
@@ -340,7 +338,7 @@ function getClosestObject(e){
   var closest = false;
   for(var i = 0; i < objects.length; i++){
     var o = objects[i];
-    if(o.type != "projectile"){
+    if(o.type == "building" || o.type == "tower"){
       if(!closest){
         closest = o;
       }else if(distance(getCenter(o),e.position) < distance(getCenter(closest),e.position)){
@@ -349,6 +347,137 @@ function getClosestObject(e){
     }
   }
   return closest;
+}
+
+function buildingArea(b){
+  return Math.abs(b.topLeft.x - b.bottomRight.x) * Math.abs(b.topLeft.y - b.bottomRight.y);
+}
+
+function copyArray(a){
+  var newa = [];
+  for(var i = 0; i < a.length; i++){
+    newa[i] = a[i];
+  }
+  return newa;
+}
+
+function findConnectedEnergyStoragePath(b){ //probably rewrite this
+  var q = [[b]];
+  while(q.length != 0){
+    var b = q[0][q[0].length-1];
+    if(b.type == "building" && b.energy < b.energyMax){
+      return(q[0]);
+    }else{
+      for(var i = 0; i < b.connected.length; i++){
+        if(!q[0].includes(b.connected[i])){
+          var path = copyArray(q[0]);
+          path.push(b.connected[i]);
+          q.push(path);
+        }
+      }
+    }
+    q.splice(0,1);
+  }
+  return false;
+}
+
+function doConnectedEnergyStorage(b){
+  var path = findConnectedEnergyStoragePath(b);
+  if(path){
+    //active connect them
+    for(var i = 0; i < path.length-1; i++){
+      path[i].activeConnections.push(path[i+1]);
+    }
+    //transfer energy
+    var transferAmount = b.energy - b.energyMax;
+    var openAmount = path[path.length-1].energyMax - path[path.length-1].energy;
+    if(transferAmount > openAmount){
+      path[path.length-1].energy += openAmount;
+      b.energy -= openAmount;
+    }else{
+      path[path.length-1].energy += transferAmount;
+      b.energy -= transferAmount;
+    }
+    return true;
+  }
+  return false;
+}
+
+function makeEnergy(building){
+  building.energy += 0.1;//building.energyRate*buildingArea(building);
+  if(building.energy > building.energyMax){
+    var sent = doConnectedEnergyStorage(building);
+    while(sent && building.energy > building.energyMax){
+      sent = doConnectedEnergyStorage(building);
+    }
+  }
+  if(building.energy > building.energyMax){
+    building.energy = building.energyMax;
+  }
+}
+
+function findConnectedEnergyPath(b){
+  var q = [[b]];
+  var visited = [b];
+  while(q.length != 0){
+    var b = q[0][q[0].length-1];
+    if(b.type == "building" && b.energy > 0){
+      return(q[0]);
+    }else{
+      for(var i = 0; i < b.connected.length; i++){
+        if(!visited.includes(b.connected[i])){
+          var path = copyArray(q[0]);
+          path.push(b.connected[i]);
+          visited.push(b.connected[i]);
+          q.push(path);
+        }
+      }
+    }
+    q.splice(0,1);
+  }
+  return false;
+}
+
+function getEnergyFor(o,n){ //o = object that needs energy, n is amount needed
+  var available = 0;
+  var paths = [];
+  var amounts = [];
+  var path = findConnectedEnergyPath(o);
+  while(path && available < n){
+
+    var source = path[path.length-1];
+    if(source.energy < n-available){
+      amounts.push(source.energy);
+      available += source.energy;
+      source.energy = 0;
+    }else{
+      amounts.push(n-available);
+      source.energy = source.energy - (n-available);
+      available = n;
+    }
+
+    paths.push(path);
+    path = findConnectedEnergyPath(o);
+  }
+  if(available < n){
+    //return energy
+    for(var i = 0; i < paths.length; i++){
+      var path = paths[i];
+      var source = path[path.length-1];
+      source.energy += amounts[i];
+    }
+    return false;
+  }else{
+    for(var i = 0; i < paths.length; i++){
+      var path = paths[i];
+      //connect path
+      for(var j = 0; j < path.length-1; j++){
+        path[j].activeConnections.push(path[j+1]);
+      }
+
+    }
+    return true;
+  }
 }
 
 function drawEverything(){
@@ -361,6 +490,16 @@ function drawEverything(){
       for(var j = 0; j < o1.connected.length; j++){
         var o2 = o1.connected[j];
         drawLine(getCenter(o1),getCenter(o2),"rgba(20,80,200,0.3)");
+      }
+    }
+  }
+  //draw active connections over normal connerctions
+  for(var i = 0; i < objects.length; i++){
+    o1 = objects[i];
+    if(o1.activeConnections){
+      for(var j = 0; j < o1.activeConnections.length; j++){
+        var o2 = o1.activeConnections[j];
+        drawLine(getCenter(o1),getCenter(o2),"rgba(50,255,200,0.5)");
       }
     }
   }
@@ -401,6 +540,13 @@ function drawEverything(){
 }
 
 function step(){
+  //clear activeConnections
+  for(var i = 0; i < objects.length; i++){
+    if(objects[i].activeConnections){
+      objects[i].activeConnections = [];
+    }
+  }
+
   //move projectiles
   for(var i = 0; i < objects.length; i++){
     o = objects[i];
@@ -437,6 +583,13 @@ function step(){
       }else{
         e.moveTarget = getClosestObject(e);
       }
+    }
+  }
+
+  //buildings produce energy
+  for(var i = 0; i < objects.length; i++){
+    if(objects[i].type == "building"){
+      makeEnergy(objects[i]);
     }
   }
 
@@ -496,8 +649,8 @@ function makeBuilding(){
         building.activeConnections = [];
         building.maxHealth = 100;
         building.health = building.maxHealth;
-        building.energyRate = 0.02;
-        building.energyMax = 20;
+        building.energyRate = 0.05;
+        building.energyMax = 100;
         building.energy = 0;
         building.vital = false;
 
@@ -546,14 +699,14 @@ function makeDefaultTower(){
   tower.position = null;
   tower.radius = 10;
   tower.color = "rgba(0,0,255,0.5)";
-  tower.range = 110;
+  tower.range = 210;
   tower.energyRange = 50;
   tower.connected = [];
   tower.activeConnections = [];
   tower.maxHealth = 50;
   tower.health = tower.maxHealth;
   tower.fireRate = 0.5;
-  tower.fireEnergy = 1;
+  tower.fireEnergy = 2;
   tower.fire = null; // put fire function here (?) !!
 
   var p = {};
@@ -563,7 +716,7 @@ function makeDefaultTower(){
   p.speed = 10;
   p.velocity = null;
   p.target = true;
-  p.damage = 4;
+  p.damage = 5;
   p.color = "red";
 
   tower.projectile = p;
@@ -644,7 +797,7 @@ function makeShip(){
   p.speed = 8;
   p.velocity = null;
   p.target = false;
-  p.damage = 15;
+  p.damage = 10;
   p.color = "yellow";
 
   ship.projectile = p;
