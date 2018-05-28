@@ -4,6 +4,7 @@ function sleep(ms) {
 }
 
 async function main(){
+  showPrices();
   step();
   pause();
   while(true){

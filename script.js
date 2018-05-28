@@ -55,7 +55,7 @@ function drawTower(o){
 }
 
 function drawProtoTower(proto){
-  if(checkCollisions(proto)){
+  if(checkCollisions(proto) || proto.price > gems){
     drawCircle(proto.position,proto.radius,"rgba(0,0,0,0)","rgba(255,100,100,100)");
   }else{
     drawCircle(proto.position,proto.radius,"rgba(0,0,0,0)","rgba(100,255,100,100)");
@@ -91,7 +91,7 @@ function drawBuilding(o){
 }
 
 function drawProtoBuilding(proto){
-  if(checkCollisions(proto)){
+  if(checkCollisions(proto) || proto.price > gems){
     drawRectangle(proto.topLeft,subtract(proto.bottomRight,proto.topLeft),"rgba(0,0,0,0)","rgba(255,100,100,100)");
   }else{
     drawRectangle(proto.topLeft,subtract(proto.bottomRight,proto.topLeft),"rgba(0,0,0,0)","rgba(100,255,100,100)");
@@ -131,7 +131,24 @@ function displayEnergy(){
   }else{
     document.getElementById("amount").style.width = "0%";
   }
-  document.getElementById("amount").innerHTML = Math.round(getEnergyTotal());
+  document.getElementById("amount").innerHTML ="&nbsp" + Math.round(getEnergyTotal()) + "e";
+}
+
+function displayGems(){
+  document.getElementById("gems").innerHTML = gems + "G";
+}
+
+function showPrices(){
+  document.getElementById("text").innerHTML =
+    "<strong>Prices:</strong><br>"+
+    "default building: "+prices.defaultBuilding+"G<br>"+
+    "battery: "+prices.battery+"G<br>"+
+    "solar farm: "+prices.solarFarm+"G<br>"+
+    "default tower: "+prices.defaultTower+"G<br>"+
+    "ranged tower: "+prices.rangedTower+"G<br>"+
+    "heavy tower: "+prices.heavyTower+"G<br>"+
+    "connection tower: "+prices.connectionTower+"G<br>";
+
 }
 
 var zeroVector = {x:0,y:0};
@@ -182,6 +199,7 @@ function pause(){
     document.getElementById("rangedTower").disabled = true;
     document.getElementById("solarFarm").disabled = true;
     document.getElementById("heavyTower").disabled = true;
+    document.getElementById("chaingunTower").disabled = true;
     document.getElementById("relay").disabled = true;
     document.getElementById("pause").innerHTML = "pause";
   }else{
@@ -191,6 +209,7 @@ function pause(){
     document.getElementById("rangedTower").disabled = false;
     document.getElementById("solarFarm").disabled = false;
     document.getElementById("heavyTower").disabled = false;
+    document.getElementById("chaingunTower").disabled = false;
     document.getElementById("relay").disabled = false;
     document.getElementById("pause").innerHTML = "resume";
   }

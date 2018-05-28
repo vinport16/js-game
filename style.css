@@ -25,12 +25,20 @@ button{
 }
 
 div.textbox{
-  height: 95%;
+  height: 90%;
   width: 100%;
 }
 
 div.text{
   padding: 5px;
+}
+
+div.gems{
+  height: 5%;
+  background-color: rgba(50,50,50,1);
+  font-size: 18pt;
+  text-align: center;
+  color: gold;
 }
 
 div.energy{
