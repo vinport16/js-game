@@ -147,6 +147,7 @@ function showPrices(){
     "default tower: "+prices.defaultTower+"G<br>"+
     "ranged tower: "+prices.rangedTower+"G<br>"+
     "heavy tower: "+prices.heavyTower+"G<br>"+
+    "chaingun tower: "+prices.chaingunTower+"G<br>"+
     "connection tower: "+prices.connectionTower+"G<br>";
 
 }

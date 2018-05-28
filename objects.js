@@ -78,9 +78,9 @@ var enemies = []; // all of the objects under enemy control
 var gems = 500; // start with 500 gems (money);
 var prices = {};
 prices.defaultTower = 60;
-prices.rangedTower = 80;
-prices.heavyTower = 70;
-prices.chaingunTower = 80;
+prices.rangedTower = 100;
+prices.heavyTower = 80;
+prices.chaingunTower = 100;
 prices.connectionTower = 10;
 
 prices.defaultBuilding = 60;
@@ -931,7 +931,7 @@ function makeHeavyTower(){
   tower.health = tower.maxHealth;
   tower.fireCooldown = 15;
   tower.cooldownTimer = 0;
-  tower.fireEnergy = 5;
+  tower.fireEnergy = 15;
   tower.fire = null; // put fire function here (?) !!
 
   var p = {};
