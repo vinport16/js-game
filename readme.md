@@ -1,4 +1,5 @@
 <h1>Tower Defense Game in JavaScript</h1>
+
 Includes:
 - towers (to defend your buildings)
 - buildings (to produce and store energy)
