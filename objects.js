@@ -405,25 +405,6 @@ function findConnectedEnergyStoragePath(b){
     q.splice(0,1);
   }
   return false;
-
-  /*
-  var q = [[b]];
-  while(q.length != 0){
-    var b = q[0][q[0].length-1];
-    if(b.type == "building" && b.energy < b.energyMax){
-      return(q[0]);
-    }else{
-      for(var i = 0; i < b.connected.length; i++){
-        if(!q[0].includes(b.connected[i])){
-          var path = copyArray(q[0]);
-          path.push(b.connected[i]);
-          q.push(path);
-        }
-      }
-    }
-    q.splice(0,1);
-  }
-  return false; */
 }
 
 function doConnectedEnergyStorage(b){
