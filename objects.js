@@ -361,7 +361,28 @@ function copyArray(a){
   return newa;
 }
 
-function findConnectedEnergyStoragePath(b){ //probably rewrite this
+function findConnectedEnergyStoragePath(b){
+  var q = [[b]];
+  var visited = [b];
+  while(q.length != 0){
+    var b = q[0][q[0].length-1];
+    if(b.energy && b.energy < b.energyMax){
+      return(q[0]);
+    }else{
+      for(var i = 0; i < b.connected.length; i++){
+        if(!visited.includes(b.connected[i])){
+          var path = copyArray(q[0]);
+          path.push(b.connected[i]);
+          visited.push(b.connected[i]);
+          q.push(path);
+        }
+      }
+    }
+    q.splice(0,1);
+  }
+  return false;
+
+  /*
   var q = [[b]];
   while(q.length != 0){
     var b = q[0][q[0].length-1];
@@ -378,7 +399,7 @@ function findConnectedEnergyStoragePath(b){ //probably rewrite this
     }
     q.splice(0,1);
   }
-  return false;
+  return false; */
 }
 
 function doConnectedEnergyStorage(b){
@@ -478,6 +499,26 @@ function getEnergyFor(o,n){ //o = object that needs energy, n is amount needed
     }
     return true;
   }
+}
+
+function getEnergyCapacity(){
+  var cap = 0;
+  for(var i = 0; i < objects.length; i++){
+    if(objects[i].energyMax){
+      cap += objects[i].energyMax;
+    }
+  }
+  return cap;
+}
+
+function getEnergyTotal(){
+  var e = 0;
+  for(var i = 0; i < objects.length; i++){
+    if(objects[i].energy){
+      e += objects[i].energy;
+    }
+  }
+  return e;
 }
 
 function drawEverything(){
@@ -621,6 +662,7 @@ function step(){
   }
 
   //draw
+  displayEnergy();
   drawEverything();
 }
 
@@ -659,6 +701,7 @@ function makeBuilding(){
         objects.push(building);
 
         clearListeners();
+        displayEnergy();
       }
     });
   });

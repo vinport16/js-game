@@ -44,7 +44,14 @@ function drawLine(v1, v2, stroke){
 
 function drawTower(o){
   drawCircle(o.position,o.radius,o.color,"rgba(255,255,100,1)");
+  //draw range
   drawCircle(o.position, o.range, "rgba(0,255,0,0.08)", "rgba(255,255,255,0.0)");
+  //draw health level
+  var p1 = subtract(o.position,{x:10,y:(4+o.radius)});
+  var p2 = {x:(p1.x+20),y:(p1.y)};
+  drawLine(p1,p2,"rgba(200,50,50,1)");
+  p2.x = p1.x + 20*(o.health/o.maxHealth);
+  drawLine(p1,p2,"rgba(150,200,150,1)");
 }
 
 function drawProtoTower(proto){
@@ -69,11 +76,18 @@ function drawProtoTower(proto){
 
 function drawBuilding(o){
   drawRectangle(o.topLeft,subtract(o.bottomRight,o.topLeft),"rgba(0,255,0,0.1)","rgba(100,255,255,1)");
+  //draw energy level
   var p1 = subtract(o.topLeft,{x:0,y:3});
   var p2 = {x:o.bottomRight.x,y:p1.y};
   drawLine(p1,p2,"rgba(100,100,100,1)");
   p2.x = p1.x + (o.energy/o.energyMax)*(p2.x-p1.x);
-  drawLine(p1,p2,"rgba(100,200,100,1)");
+  drawLine(p1,p2,"rgba(100,150,200,1)");
+  //draw health level
+  p1 = subtract(o.topLeft,{x:0,y:6});
+  p2 = {x:o.bottomRight.x,y:p1.y};
+  drawLine(p1,p2,"rgba(200,50,50,1)");
+  p2.x = p1.x + (o.health/o.maxHealth)*(p2.x-p1.x);
+  drawLine(p1,p2,"rgba(150,200,150,1)");
 }
 
 function drawProtoBuilding(proto){
@@ -95,6 +109,12 @@ function drawProtoBuilding(proto){
 
 function drawShip(o){
   drawCircle(o.position,o.radius,"rgba(255,0,0,0.6)","rgba(255,255,255,0.3)");
+  //draw health level
+  var p1 = subtract(o.position,{x:10,y:(4+o.radius)});
+  var p2 = {x:(p1.x+20),y:(p1.y)};
+  drawLine(p1,p2,"rgba(200,50,50,1)");
+  p2.x = p1.x + 20*(o.health/o.maxHealth);
+  drawLine(p1,p2,"rgba(150,200,150,1)");
 }
 
 function drawProjectile(p){
@@ -103,6 +123,15 @@ function drawProjectile(p){
 
 function drawEnemyProjectile(p){
   drawCircle(p.position,p.radius,p.color,"rgba(255,0,0,0.5)");
+}
+
+function displayEnergy(){
+  if(getEnergyCapacity()>0){
+    document.getElementById("amount").style.width = ""+(100*getEnergyTotal()/getEnergyCapacity())+"%";
+  }else{
+    document.getElementById("amount").style.width = "0%";
+  }
+  document.getElementById("amount").innerHTML = Math.round(getEnergyTotal());
 }
 
 var zeroVector = {x:0,y:0};
