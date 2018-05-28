@@ -176,13 +176,21 @@ var paused = false;
 function pause(){
   paused = !paused;
   if(!paused){
-    document.getElementById("building").disabled = true;
-    document.getElementById("tower").disabled = true;
+    document.getElementById("defaultBuilding").disabled = true;
+    document.getElementById("defaultTower").disabled = true;
+    document.getElementById("battery").disabled = true;
+    document.getElementById("rangedTower").disabled = true;
+    document.getElementById("solarFarm").disabled = true;
+    document.getElementById("heavyTower").disabled = true;
     document.getElementById("relay").disabled = true;
     document.getElementById("pause").innerHTML = "pause";
   }else{
-    document.getElementById("building").disabled = false;
-    document.getElementById("tower").disabled = false;
+    document.getElementById("defaultBuilding").disabled = false;
+    document.getElementById("defaultTower").disabled = false;
+    document.getElementById("battery").disabled = false;
+    document.getElementById("rangedTower").disabled = false;
+    document.getElementById("solarFarm").disabled = false;
+    document.getElementById("heavyTower").disabled = false;
     document.getElementById("relay").disabled = false;
     document.getElementById("pause").innerHTML = "resume";
   }

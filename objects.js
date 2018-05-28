@@ -366,7 +366,7 @@ function findConnectedEnergyStoragePath(b){
   var visited = [b];
   while(q.length != 0){
     var b = q[0][q[0].length-1];
-    if(b.energy && b.energy < b.energyMax){
+    if(b.energyMax && b.energy < b.energyMax){
       return(q[0]);
     }else{
       for(var i = 0; i < b.connected.length; i++){
@@ -425,7 +425,7 @@ function doConnectedEnergyStorage(b){
 }
 
 function makeEnergy(building){
-  building.energy += 0.1;//building.energyRate*buildingArea(building);
+  building.energy += building.energyRate;
   if(building.energy > building.energyMax){
     var sent = doConnectedEnergyStorage(building);
     while(sent && building.energy > building.energyMax){
@@ -666,49 +666,94 @@ function step(){
   drawEverything();
 }
 
-function makeBuilding(){
-  canvas.addEventListener("click", function(event){
-
-    var tl = getVector(event);
-
+function makeBuilding(b){
+    var offset = b.bottomRight;
     canvas.addEventListener("mousemove", function(event){
       drawEverything();
-      var proto = {type: "building",topLeft: tl, bottomRight: getVector(event), energyRange: 100};
-      drawProtoBuilding(proto);
+      b.topLeft = getVector(event);
+      b.bottomRight = add(b.topLeft,offset);
+      //var proto = {type: "building",topLeft: tl, bottomRight: getVector(event), energyRange: 100};
+      drawProtoBuilding(b);
     });
 
     canvas.addEventListener("click", function(event){
-      if(checkCollisions({type: "building",topLeft: tl, bottomRight: getVector(event)})){
+      b.topLeft = getVector(event);
+      b.bottomRight = add(b.topLeft,offset);
+      if(checkCollisions(b)){
         clearListeners();
       }else{
-        var building = {};
-        building.type = "building";
-        building.name = "yolo";
-        building.topLeft = tl;
-        building.bottomRight = getVector(event);
-        building.energyRange = 100;
-        building.connected = [];
-        building.activeConnections = [];
-        building.maxHealth = 100;
-        building.health = building.maxHealth;
-        building.energyRate = 0.05;
-        building.energyMax = 100;
-        building.energy = 0;
-        building.vital = false;
 
-        connectToAll(building);
+        connectToAll(b);
 
-        objects.push(building);
+        objects.push(b);
 
         clearListeners();
         displayEnergy();
       }
     });
-  });
 
 }
 
-document.getElementById("building").addEventListener("click",makeBuilding);
+function makeDefaultBuilding(){
+  var building = {};
+  building.type = "building";
+  building.name = "yolo";
+  building.topLeft = {x:0,y:0};
+  building.bottomRight = {x:20,y:20};
+  building.energyRange = 30;
+  building.connected = [];
+  building.activeConnections = [];
+  building.maxHealth = 100;
+  building.health = building.maxHealth;
+  building.energyRate = 0.1;
+  building.energyMax = 100;
+  building.energy = 0;
+  building.vital = false;
+
+  makeBuilding(building);
+}
+document.getElementById("defaultBuilding").addEventListener("click",makeDefaultBuilding);
+
+function makeBattery(){
+  var building = {};
+  building.type = "building";
+  building.name = "battery";
+  building.topLeft = {x:0,y:0};
+  building.bottomRight = {x:20,y:15};
+  building.energyRange = 40;
+  building.connected = [];
+  building.activeConnections = [];
+  building.maxHealth = 80;
+  building.health = building.maxHealth;
+  building.energyRate = 0.00;
+  building.energyMax = 300;
+  building.energy = 0;
+  building.vital = false;
+
+  makeBuilding(building);
+}
+document.getElementById("battery").addEventListener("click",makeBattery);
+
+function makeSolarFarm(){
+  var building = {};
+  building.type = "building";
+  building.name = "yolo";
+  building.topLeft = {x:0,y:0};
+  building.bottomRight = {x:100,y:110};
+  building.energyRange = 90;
+  building.connected = [];
+  building.activeConnections = [];
+  building.maxHealth = 90;
+  building.health = building.maxHealth;
+  building.energyRate = 0.5;
+  building.energyMax = 40;
+  building.energy = 0;
+  building.vital = false;
+
+  makeBuilding(building);
+}
+document.getElementById("solarFarm").addEventListener("click",makeSolarFarm);
+
 
 function makeTower(tower){
 
@@ -775,6 +820,91 @@ function makeDefaultTower(){
 
   makeTower(tower);
 }
+document.getElementById("defaultTower").addEventListener("click",makeDefaultTower);
+
+function makeRangedTower(){
+  var tower = {};
+  tower.type = "tower";
+  tower.name = "range me";
+  tower.position = null;
+  tower.radius = 11;
+  tower.color = "rgba(150,25,200,0.5)";
+  tower.range = 320;
+  tower.energyRange = 50;
+  tower.connected = [];
+  tower.activeConnections = [];
+  tower.maxHealth = 60;
+  tower.health = tower.maxHealth;
+  tower.fireRate = 0.5;
+  tower.fireEnergy = 3;
+  tower.fire = null; // put fire function here (?) !!
+
+  var p = {};
+  p.type = "projectile";
+  p.position = null;
+  p.radius = 3;
+  p.speed = 13;
+  p.velocity = null;
+  p.target = true;
+  p.damage = 5;
+  p.color = "pink";
+
+  tower.projectile = p;
+
+  var laser = {};
+  laser.type = "laser";
+  laser.startObject = tower;
+  laser.endObject = false;
+  laser.damage = 10;
+  laser.duration = 3;
+
+  tower.laser = laser;
+
+  makeTower(tower);
+}
+document.getElementById("rangedTower").addEventListener("click",makeRangedTower);
+
+function makeHeavyTower(){
+  var tower = {};
+  tower.type = "tower";
+  tower.name = "She's So Heavy";
+  tower.position = null;
+  tower.radius = 13;
+  tower.color = "rgba(0,0,150,0.5)";
+  tower.range = 100;
+  tower.energyRange = 40;
+  tower.connected = [];
+  tower.activeConnections = [];
+  tower.maxHealth = 70;
+  tower.health = tower.maxHealth;
+  tower.fireRate = 0.5;
+  tower.fireEnergy = 5;
+  tower.fire = null; // put fire function here (?) !!
+
+  var p = {};
+  p.type = "projectile";
+  p.position = null;
+  p.radius = 8;
+  p.speed = 8;
+  p.velocity = null;
+  p.target = true;
+  p.damage = 12;
+  p.color = "pink";
+
+  tower.projectile = p;
+
+  var laser = {};
+  laser.type = "laser";
+  laser.startObject = tower;
+  laser.endObject = false;
+  laser.damage = 10;
+  laser.duration = 3;
+
+  tower.laser = laser;
+
+  makeTower(tower);
+}
+document.getElementById("heavyTower").addEventListener("click",makeHeavyTower);
 
 function makeConnectionTower(){
   var tower = {};
@@ -816,8 +946,6 @@ function makeConnectionTower(){
 
   makeTower(tower);
 }
-
-document.getElementById("tower").addEventListener("click",makeDefaultTower);
 document.getElementById("relay").addEventListener("click",makeConnectionTower);
 
 function makeShip(){
@@ -849,7 +977,6 @@ function makeShip(){
   enemies.push(ship);
   drawEverything();
 }
-
 document.getElementById("ship").addEventListener("click",makeShip);
 
 
