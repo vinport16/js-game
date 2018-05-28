@@ -823,7 +823,7 @@ document.getElementById("relay").addEventListener("click",makeConnectionTower);
 function makeShip(){
   ship = {};
   ship.type = "ship";
-  ship.position = {x: (10+Math.random()*30), y: (10+Math.random()*30)};
+  ship.position = {x: (Math.random()*5-20), y: (Math.random()*canvas.height)};
   ship.velocity = 2;
   ship.radius = 8;
   ship.range = 45;
