@@ -6,6 +6,7 @@ Includes:
 - variety of enemy ships (to attack your structures)
 - network of wires (for energy transfer)
 - currency (to buy towers and buildings)
+- ten levels/waves
 
 To be added:
 - buildings that can repair your structures (?)

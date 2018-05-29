@@ -123,6 +123,84 @@ function doGameEvents(){
       makeDefaultShip();
     }
   }
+
+  //seventh wave at 220 seconds (hard)
+  //18 default ships, 8 big ships, 8 long ships
+  if(gameTime == 220*20){
+    console.log("seventh wave");
+    for(var i = 0; i < 10; i++){
+      makeDefaultShip();
+    }
+    for(var i = 0; i < 8; i++){
+      makeBigShip();
+    }
+  }
+  if(gameTime == 225){
+    for(var i = 0; i < 8; i++){
+      makeLongShip();
+    }
+    for(var i = 0; i < 8; i++){
+      makeDefaultShip();
+    }
+  }
+
+  //eighth wave at 250 seconds (hard)
+  //20 default ships, 10 big ships, 10 long ships
+  if(gameTime == 250*20){
+    console.log("eighth wave");
+    for(var i = 0; i < 10; i++){
+      makeBigShip();
+    }
+  }
+  if(gameTime == 255){
+    for(var i = 0; i < 10; i++){
+      makeLongShip();
+    }
+    for(var i = 0; i < 20; i++){
+      makeDefaultShip();
+    }
+  }
+
+  //ninth wave at 275 seconds (hard)
+  //25 default ships, 25 big ships, 10 long ships
+  if(gameTime == 275*20){
+    console.log("ninth wave");
+    for(var i = 0; i < 25; i++){
+      makeDefaultShip();
+    }
+    for(var i = 0; i < 5; i++){
+      makeBigShip();
+    }
+  }
+  if(gameTime == 280*20){
+    for(var i = 0; i < 20; i++){
+      makeBigShip();
+    }
+    for(var i = 0; i < 10; i++){
+      makeLongShip();
+    }
+  }
+
+  //tenth wave at 310 seconds (very hard)
+  //20 big ships, 25 long ships, 30 default ships
+  if(gameTime == 310*20){
+    console.log("tenth wave");
+    for(var i = 0; i < 20; i++){
+      makeBigShip();
+    }
+  }
+  if(gameTime == 314*20){
+    for(var i = 0; i < 25; i++){
+      makeLongShip();
+    }
+  }
+  if(gameTime == 315*20){
+    for(var i = 0; i < 30; i++){
+      makeDefaultShip();
+    }
+  }
+
+  
 }
 
 async function main(){
