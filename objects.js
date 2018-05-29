@@ -28,6 +28,7 @@ projectile:
  - radius (integer)
  - velocity (vector)
  - speed (integer)
+ - persist (boolean) : should this projectile persist after it destroys its target?
  - target (object or false) : for seeking projectiles
  - damage (integer)
  - color (string)
@@ -72,18 +73,19 @@ ship:
  - laser (object)
 
 */
-
+var gameTime = 0; // # of steps that have happened in the game
 var objects = []; // all of the objects under your control
 var enemies = []; // all of the objects under enemy control
-var gems = 500; // start with 500 gems (money);
+var gems = 1000; // start with 500 gems (money);
 var prices = {};
-prices.defaultTower = 60;
+prices.defaultTower = 80;
 prices.rangedTower = 100;
-prices.heavyTower = 80;
+prices.heavyTower = 110;
 prices.chaingunTower = 100;
+prices.seekingTower = 200;
 prices.connectionTower = 10;
 
-prices.defaultBuilding = 60;
+prices.defaultBuilding = 70;
 prices.battery = 100;
 prices.solarFarm = 200;
 
@@ -248,10 +250,15 @@ function getProjectileCollision(p){ //returns the enemy that the projectile has 
 }
 
 function moveProjectile(p){
-  if(p.target.destroyed){
+  if(p.target.destroyed && !p.persist){
     p.target = false;
+  }else if(p.target.destroyed && p.persist){
+    var t = getClosestEnemy(p);
+    if(t){
+      p.target = t;
+    }
   }
-  if(p.target){
+  if(p.target && !p.target.destroyed){
     p.velocity = multiply(unitVector(subtract(getCenter(p.target),p.position)),p.speed);
   }
   p.position = add(p.position,p.velocity);
@@ -263,9 +270,14 @@ function handleCollisions(){
     if(o.type == "projectile"){
       collision = getProjectileCollision(o);
       if(collision){
-        collision[0].health -= o.damage;
-        o.destroyed = true;
-        objects.splice(i,1);
+        if(!o.persist || collision[0].health >= o.damage){
+          collision[0].health -= o.damage;
+          o.destroyed = true;
+          objects.splice(i,1);
+        }else{
+          o.damage -= collision[0].health;
+          collision[0].health = 0;
+        }
         if(collision[0].health <= 0){
           collision[0].destroyed = true;
           gems += collision[0].bounty; // get money
@@ -279,9 +291,14 @@ function handleCollisions(){
     if(e.type == "projectile"){
       collision = getEnemyProjectileCollision(e);
       if(collision){
-        collision[0].health -= e.damage;
-        e.destroyed = true;
-        enemies.splice(i,1);
+        if(!e.persist || collision[0].health >= e.damage){
+          collision[0].health -= e.damage;
+          e.destroyed = true;
+          enemies.splice(i,1);
+        }else{
+          e.damage -= collision[0].health;
+          collision[0].health = 0;
+        }
         if(collision[0].health <= 0){
           collision[0].destroyed = true;
           objects.splice(collision[1],1); // remove destroyed object from game
@@ -312,6 +329,7 @@ function fire(o, target, enemy){
   proj.velocity = multiply(unitVector(subtract(getCenter(target),o.position)), o.projectile.speed);
   proj.speed = o.projectile.speed;
   proj.target = false;
+  proj.persist = o.projectile.persist;
   if(o.projectile.target){
     proj.target = target;
   }
@@ -588,6 +606,9 @@ function drawEverything(){
 }
 
 function step(){
+  //make ships & do game events
+  doGameEvents();
+
   //clear activeConnections
   for(var i = 0; i < objects.length; i++){
     if(objects[i].activeConnections){
@@ -681,6 +702,9 @@ function step(){
       }
     }
   }
+
+  //increase gameTime
+  gameTime += 1;
 
   //draw
   displayEnergy();
@@ -834,7 +858,7 @@ function makeDefaultTower(){
   p.speed = 10;
   p.velocity = null;
   p.target = true;
-  p.damage = 5;
+  p.damage = 8;
   p.color = "red";
 
   tower.projectile = p;
@@ -866,7 +890,7 @@ function makeRangedTower(){
   tower.activeConnections = [];
   tower.maxHealth = 60;
   tower.health = tower.maxHealth;
-  tower.fireCooldown = 13;
+  tower.fireCooldown = 15;
   tower.cooldownTimer = 0;
   tower.fireEnergy = 3;
   tower.fire = null; // put fire function here (?) !!
@@ -878,7 +902,7 @@ function makeRangedTower(){
   p.speed = 13;
   p.velocity = null;
   p.target = true;
-  p.damage = 20;
+  p.damage = 15;
   p.color = "pink";
 
   tower.projectile = p;
@@ -908,11 +932,11 @@ function makeHeavyTower(){
   tower.energyRange = 40;
   tower.connected = [];
   tower.activeConnections = [];
-  tower.maxHealth = 70;
+  tower.maxHealth = 250;
   tower.health = tower.maxHealth;
-  tower.fireCooldown = 15;
+  tower.fireCooldown = 18;
   tower.cooldownTimer = 0;
-  tower.fireEnergy = 15;
+  tower.fireEnergy = 40;
   tower.fire = null; // put fire function here (?) !!
 
   var p = {};
@@ -921,8 +945,9 @@ function makeHeavyTower(){
   p.radius = 8;
   p.speed = 8;
   p.velocity = null;
-  p.target = true;
-  p.damage = 50;
+  p.target = false;
+  p.damage = 70;
+  p.persist = true;
   p.color = "pink";
 
   tower.projectile = p;
@@ -952,11 +977,11 @@ function makeChaingunTower(){
   tower.energyRange = 30;
   tower.connected = [];
   tower.activeConnections = [];
-  tower.maxHealth = 50;
+  tower.maxHealth = 80;
   tower.health = tower.maxHealth;
   tower.fireCooldown = 2;
   tower.cooldownTimer = 0;
-  tower.fireEnergy = 1;
+  tower.fireEnergy = 6;
   tower.fire = null; // put fire function here (?) !!
 
   var p = {};
@@ -966,7 +991,7 @@ function makeChaingunTower(){
   p.speed = 14;
   p.velocity = null;
   p.target = false;
-  p.damage = 3;
+  p.damage = 8;
   p.color = "white";
 
   tower.projectile = p;
@@ -983,6 +1008,51 @@ function makeChaingunTower(){
   makeTower(tower);
 }
 document.getElementById("chaingunTower").addEventListener("click",makeChaingunTower);
+
+function makeSeekingTower(){
+  var tower = {};
+  tower.type = "tower";
+  tower.name = "ha-ha";
+  tower.position = null;
+  tower.radius = 8;
+  tower.price = prices.seekingTower;
+  tower.color = "rgba(100,100,100,0.8)";
+  tower.range = 310;
+  tower.energyRange = 50;
+  tower.connected = [];
+  tower.activeConnections = [];
+  tower.maxHealth = 40;
+  tower.health = tower.maxHealth;
+  tower.fireCooldown = 200;
+  tower.cooldownTimer = 0;
+  tower.fireEnergy = 300;
+  tower.fire = null; // put fire function here (?) !!
+
+  var p = {};
+  p.type = "projectile";
+  p.position = null;
+  p.radius = 5;
+  p.speed = 11;
+  p.velocity = null;
+  p.target = true;
+  p.persist = true;
+  p.damage = 400;
+  p.color = "white";
+
+  tower.projectile = p;
+
+  var laser = {};
+  laser.type = "laser";
+  laser.startObject = tower;
+  laser.endObject = false;
+  laser.damage = 10;
+  laser.duration = 3;
+
+  tower.laser = laser;
+
+  makeTower(tower);
+}
+document.getElementById("seekingTower").addEventListener("click",makeSeekingTower);
 
 function makeConnectionTower(){
   var tower = {};
@@ -1029,10 +1099,35 @@ function makeConnectionTower(){
 document.getElementById("relay").addEventListener("click",makeConnectionTower);
 
 
+function positionLeftOfScreen(){
+  return {x: (Math.random()*20-50), y: (Math.random()*canvas.height)};
+}
+function positionRightOfScreen(){
+  return {x: (Math.random()*20+30+canvas.width), y: (Math.random()*canvas.height)};
+}
+function positionAboveScreen(){
+  return {x: (Math.random()*canvas.width), y:(Math.random()*20-50)};
+}
+function positionBelowScreen(){
+  return {x: (Math.random()*canvas.width), y:(Math.random()*20+30+canvas.height)};
+}
+function positionAnywhereAround(){
+  var n = Math.random()*4;
+  if(n<1){
+    return positionLeftOfScreen();
+  }else if(n<2){
+    return positionRightOfScreen();
+  }else if(n<3){
+    return positionAboveScreen();
+  }else{
+    return positionBelowScreen();
+  }
+}
+
 function makeDefaultShip(){
   ship = {};
   ship.type = "ship";
-  ship.position = {x: (Math.random()*5-20), y: (Math.random()*canvas.height)};
+  ship.position = positionAnywhereAround();
   ship.velocity = 2;
   ship.radius = 8;
   ship.range = 45;
@@ -1065,7 +1160,7 @@ document.getElementById("ship").addEventListener("click",makeDefaultShip);
 function makeBigShip(){
   ship = {};
   ship.type = "ship";
-  ship.position = {x: (Math.random()*5-20), y: (Math.random()*canvas.height)};
+  ship.position = positionAnywhereAround();
   ship.velocity = 1;
   ship.radius = 15;
   ship.range = 110;
@@ -1094,6 +1189,39 @@ function makeBigShip(){
   drawEverything();
 }
 document.getElementById("bigShip").addEventListener("click",makeBigShip);
+
+function makeLongShip(){
+  ship = {};
+  ship.type = "ship";
+  ship.position = positionAnywhereAround();
+  ship.velocity = 1.5;
+  ship.radius = 12;
+  ship.range = 230;
+  ship.maxHealth = 160;
+  ship.health = ship.maxHealth;
+  ship.bounty = 60;
+  ship.moveTarget = getClosestObject(ship);
+  ship.fireTarget = false;
+  ship.fireCooldown = 3;
+  ship.cooldownTimer = 0;
+
+  var p = {};
+  p.type = "projectile";
+  p.position = false;
+  p.radius = 2;
+  p.speed = 12;
+  p.velocity = null;
+  p.target = false;
+  p.damage = 2;
+  p.color = "white";
+
+  ship.projectile = p;
+  ship.laser = false;
+
+  enemies.push(ship);
+  drawEverything();
+}
+document.getElementById("longShip").addEventListener("click",makeLongShip);
 
 
 
