@@ -195,6 +195,17 @@ canvas.height = document.body.clientHeight - 10 ;
 
 var ctx = canvas.getContext("2d");
 
+function toggleHeal(){
+  heal = !heal;
+  if(heal){
+    document.getElementById("heal").innerHTML = "pause healing";
+  }else{
+    document.getElementById("heal").innerHTML = "resume healing";
+  }
+}
+
+document.getElementById("heal").addEventListener("click",toggleHeal);
+
 function disableAllButtons(){
   var buttons = document.getElementsByTagName("button");
   for(var i = 0; i < buttons.length; i++){
@@ -221,6 +232,7 @@ function pause(){
     document.getElementById("heavyTower").disabled = true;
     document.getElementById("chaingunTower").disabled = true;
     document.getElementById("seekingTower").disabled = true;
+    document.getElementById("repairBuilding").disabled = true;
     document.getElementById("relay").disabled = true;
     document.getElementById("pause").innerHTML = "pause";
   }else{
@@ -232,13 +244,13 @@ function pause(){
     document.getElementById("heavyTower").disabled = false;
     document.getElementById("chaingunTower").disabled = false;
     document.getElementById("seekingTower").disabled = false;
+    document.getElementById("repairBuilding").disabled = false;
     document.getElementById("relay").disabled = false;
     document.getElementById("pause").innerHTML = "resume";
   }
 }
 
 document.getElementById("pause").addEventListener("click",pause);
-
 
 
 

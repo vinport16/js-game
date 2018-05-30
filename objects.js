@@ -85,6 +85,7 @@ var gameTime = 0; // # of steps that have happened in the game
 var objects = []; // all of the objects under your control
 var enemies = []; // all of the objects under enemy control
 var activeHealPaths = []; // paths along which healing buildings are healing other objects
+var heal = true; // toggle repairs
 var gems = 1000; // start with 500 gems (money);
 var prices = {};
 prices.defaultTower = 80;
@@ -577,7 +578,7 @@ function getHealPath(b){
 }
 
 function doHeal(o){
-  if(o.heal.cooldownTimer <= 0 && getEnergyTotal()/getEnergyCapacity() > o.heal.waitUntil){
+  if(o.heal.cooldownTimer <= 0){
     var path = getHealPath(o);
     if(path && getEnergyFor(o,o.heal.energyReqired)){
       var end = path[path.length-1];
@@ -732,9 +733,11 @@ function step(){
   }
 
   //buildings heal
-  for(var i = 0; i < objects.length; i++){
-    if(objects[i].heal){
-      doHeal(objects[i]);
+  if(heal){
+    for(var i = 0; i < objects.length; i++){
+      if(objects[i].heal){
+        doHeal(objects[i]);
+      }
     }
   }
 
