@@ -51,9 +51,17 @@ building:
  - activeConnections (array of objects) : things that it is currently drawing energy from
  - maxHealth (integer)
  - health (integer)
- - energyRate (float) : how much energy can be produced per pixel per second
- - energyMax : maximum energy storage
- - energy : amount of energy in storage
+ - energyRate (float) : how much energy can be produced per frame
+ - energyMax (integer) : maximum energy storage
+ - energy (integer) : amount of energy in storage
+ - heal (object or false) : can this building repair other buildings?
+   - heal object {
+                    waitUntil (float) : percent charge of entire complex before beginning to heal
+                    cooldown (integer): # frames between heals
+                    cooldownTimer (integer): # frames until next heal
+                    energyReqired (integer): amount of energy needed per heal
+                    healAmount (integer): amount of health to restore per heal
+                   }
  - vital (boolean) : specifies if destruction of building will end the game
 
 ship:
@@ -76,6 +84,7 @@ ship:
 var gameTime = 0; // # of steps that have happened in the game
 var objects = []; // all of the objects under your control
 var enemies = []; // all of the objects under enemy control
+var activeHealPaths = []; // paths along which healing buildings are healing other objects
 var gems = 1000; // start with 500 gems (money);
 var prices = {};
 prices.defaultTower = 80;
@@ -88,6 +97,7 @@ prices.connectionTower = 10;
 prices.defaultBuilding = 70;
 prices.battery = 100;
 prices.solarFarm = 200;
+prices.repairBuilding = 190;
 
 function getCenter(object){
   var center;
@@ -412,7 +422,7 @@ function findConnectedEnergyStoragePath(b){
       return(q[0]);
     }else{
       for(var i = 0; i < b.connected.length; i++){
-        if(!visited.includes(b.connected[i])){
+        if(!visited.includes(b.connected[i]) && b.connected[i].destroyed == undefined){
           var path = copyArray(q[0]);
           path.push(b.connected[i]);
           visited.push(b.connected[i]);
@@ -469,7 +479,7 @@ function findConnectedEnergyPath(b){
       return(q[0]);
     }else{
       for(var i = 0; i < b.connected.length; i++){
-        if(!visited.includes(b.connected[i])){
+        if(!visited.includes(b.connected[i]) && b.connected[i].destroyed == undefined){
           var path = copyArray(q[0]);
           path.push(b.connected[i]);
           visited.push(b.connected[i]);
@@ -544,8 +554,48 @@ function getEnergyTotal(){
   return e;
 }
 
+function getHealPath(b){
+  var q = [[b]];
+  var visited = [b];
+  while(q.length != 0){
+    var b = q[0][q[0].length-1];
+    if(b.maxHealth && b.health < b.maxHealth){
+      return(q[0]);
+    }else{
+      for(var i = 0; i < b.connected.length; i++){
+        if(!visited.includes(b.connected[i]) && b.connected[i].destroyed == undefined){
+          var path = copyArray(q[0]);
+          path.push(b.connected[i]);
+          visited.push(b.connected[i]);
+          q.push(path);
+        }
+      }
+    }
+    q.splice(0,1);
+  }
+  return false;
+}
+
+function doHeal(o){
+  if(o.heal.cooldownTimer <= 0 && getEnergyTotal()/getEnergyCapacity() > o.heal.waitUntil){
+    var path = getHealPath(o);
+    if(path && getEnergyFor(o,o.heal.energyReqired)){
+      var end = path[path.length-1];
+      end.health += o.heal.healAmount;
+      if(end.health > end.maxHealth){
+        end.health = end.maxHealth;
+      }
+      activeHealPaths.push(path);
+      o.heal.cooldownTimer = o.heal.cooldown;
+    }
+  }else{
+    o.heal.cooldownTimer -= 1;
+  }
+}
+
 function drawEverything(){
   clearCanvas();
+
   //draw range shadows
   for(var i = 0; i < objects.length; i++){
     var o = objects[i];
@@ -573,6 +623,15 @@ function drawEverything(){
         var o2 = o1.activeConnections[j];
         drawLine(getCenter(o1),getCenter(o2),"rgba(50,255,200,0.5)");
       }
+    }
+  }
+  //draw active heal paths
+  for(var i = 0; i < activeHealPaths.length; i++){
+    path = activeHealPaths[i];
+    for(var j = 0; j < path.length-1; j++){
+      var p1 = path[j];
+      var p2 = path[j+1];
+      drawLine(getCenter(p1),getCenter(p2),"rgba(255,100,100,0.9)");
     }
   }
 
@@ -623,6 +682,8 @@ function step(){
       objects[i].activeConnections = [];
     }
   }
+  //clear activeHealPaths
+  activeHealPaths = [];
 
   //move projectiles
   for(var i = 0; i < objects.length; i++){
@@ -667,6 +728,13 @@ function step(){
   for(var i = 0; i < objects.length; i++){
     if(objects[i].type == "building"){
       makeEnergy(objects[i]);
+    }
+  }
+
+  //buildings heal
+  for(var i = 0; i < objects.length; i++){
+    if(objects[i].heal){
+      doHeal(objects[i]);
     }
   }
 
@@ -774,6 +842,15 @@ function makeDefaultBuilding(){
   building.energy = 0;
   building.vital = false;
 
+  rep = {};
+  rep.waitUntil = 0.6;
+  rep.cooldown = 40;
+  rep.cooldownTimer = 0;
+  rep.energyReqired = 10;
+  rep.healAmount = 3;
+
+  building.heal = rep;
+
   makeBuilding(building);
 }
 document.getElementById("defaultBuilding").addEventListener("click",makeDefaultBuilding);
@@ -794,6 +871,7 @@ function makeBattery(){
   building.energyMax = 300;
   building.energy = 0;
   building.vital = false;
+  building.heal = false;
 
   makeBuilding(building);
 }
@@ -815,10 +893,41 @@ function makeSolarFarm(){
   building.energyMax = 10;
   building.energy = 0;
   building.vital = false;
+  building.heal = false;
 
   makeBuilding(building);
 }
 document.getElementById("solarFarm").addEventListener("click",makeSolarFarm);
+
+function makeRepairBuilding(){
+  var building = {};
+  building.type = "building";
+  building.name = "rep-me";
+  building.topLeft = {x:0,y:0};
+  building.bottomRight = {x:50,y:25};
+  building.price = prices.repairBuilding;
+  building.energyRange = 40;
+  building.connected = [];
+  building.activeConnections = [];
+  building.maxHealth = 150;
+  building.health = building.maxHealth;
+  building.energyRate = 0.05;
+  building.energyMax = 40;
+  building.energy = 0;
+  building.vital = false;
+
+  rep = {};
+  rep.waitUntil = 0.6;
+  rep.cooldown = 20;
+  rep.cooldownTimer = 0;
+  rep.energyReqired = 10;
+  rep.healAmount = 6;
+
+  building.heal = rep;
+
+  makeBuilding(building);
+}
+document.getElementById("repairBuilding").addEventListener("click",makeRepairBuilding);
 
 
 function makeTower(tower){

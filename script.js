@@ -144,7 +144,7 @@ function displayGems(){
 function showPrices(){
   document.getElementById("text").innerHTML =
     "<strong>Prices:</strong><br>"+
-    "default building: "+prices.defaultBuilding+"G<br>stores and produces energy, high health<br><br>"+
+    "default building: "+prices.defaultBuilding+"G<br>stores and produces energy, high health, heals a bit<br><br>"+
     "battery: "+prices.battery+"G<br>stores a lot of energy<br><br>"+
     "solar farm: "+prices.solarFarm+"G<br>produces a lot of energy<br><br>"+
     "default tower: "+prices.defaultTower+"G<br>energy efficient, reliable<br><br>"+
@@ -152,7 +152,8 @@ function showPrices(){
     "heavy tower: "+prices.heavyTower+"G<br>lots of health, short range, lots of damage<br><br>"+
     "chaingun tower: "+prices.chaingunTower+"G<br>lots of damage, not energy efficient<br><br>"+
     "seeking tower: "+prices.seekingTower+"G<br>uses lots of energy to shoot one very powerful projectile<br><br>"+
-    "connection tower: "+prices.connectionTower+"G<br>can relay energy between buildings and towers<br><br>";
+    "connection tower: "+prices.connectionTower+"G<br>can relay energy between buildings and towers<br><br>"+
+    "repair building: "+prices.repairBuilding+"G<br>good at healing other buildings/towers<br><br>";
 
 }
 
