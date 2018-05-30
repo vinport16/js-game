@@ -546,7 +546,15 @@ function getEnergyTotal(){
 
 function drawEverything(){
   clearCanvas();
-  //first draw connections
+  //draw range shadows
+  for(var i = 0; i < objects.length; i++){
+    var o = objects[i];
+    if(o.range){
+      drawRange(o);
+    }
+  }
+
+  //draw connections
   for(var i = 0; i < objects.length; i++){
     //we're just gonna be lazy and draw all of the connections twice
     o1 = objects[i];
@@ -712,6 +720,12 @@ function step(){
 }
 
 function makeBuilding(b){
+  disableAllButtons();
+  document.getElementById("cancel").disabled = false;
+  document.getElementById("cancel").addEventListener("click",function(){
+    clearListeners();
+    enableAllButtons();
+  });
     var offset = b.bottomRight;
     canvas.addEventListener("mousemove", function(event){
       drawEverything();
@@ -726,6 +740,7 @@ function makeBuilding(b){
       b.bottomRight = add(b.topLeft,offset);
       if(checkCollisions(b) || b.price > gems){
         clearListeners();
+        enableAllButtons();
       }else{
 
         connectToAll(b);
@@ -735,6 +750,7 @@ function makeBuilding(b){
         gems -= b.price;
 
         clearListeners();
+        enableAllButtons();
         displayEnergy();
       }
     });
@@ -807,6 +823,13 @@ document.getElementById("solarFarm").addEventListener("click",makeSolarFarm);
 
 function makeTower(tower){
 
+  disableAllButtons();
+  document.getElementById("cancel").disabled = false;
+  document.getElementById("cancel").addEventListener("click",function(){
+    clearListeners();
+    enableAllButtons();
+  });
+
   canvas.addEventListener("mousemove", function(event){
     drawEverything();
     //var proto = {type: "tower", position: getVector(event), radius: 10, energyRange: 50, range:70};
@@ -817,6 +840,7 @@ function makeTower(tower){
   canvas.addEventListener("click", function(event){
     tower.position = getVector(event);
     if(checkCollisions(tower) || tower.price > gems){
+      enableAllButtons();
       clearListeners();
     }else{
 
@@ -826,6 +850,7 @@ function makeTower(tower){
 
       gems -= tower.price;
 
+      enableAllButtons();
       clearListeners();
     }
   });
@@ -981,7 +1006,7 @@ function makeChaingunTower(){
   tower.health = tower.maxHealth;
   tower.fireCooldown = 2;
   tower.cooldownTimer = 0;
-  tower.fireEnergy = 6;
+  tower.fireEnergy = 3;
   tower.fire = null; // put fire function here (?) !!
 
   var p = {};
@@ -1155,7 +1180,6 @@ function makeDefaultShip(){
   enemies.push(ship);
   drawEverything();
 }
-document.getElementById("ship").addEventListener("click",makeDefaultShip);
 
 function makeBigShip(){
   ship = {};
@@ -1188,7 +1212,6 @@ function makeBigShip(){
   enemies.push(ship);
   drawEverything();
 }
-document.getElementById("bigShip").addEventListener("click",makeBigShip);
 
 function makeLongShip(){
   ship = {};
@@ -1221,8 +1244,22 @@ function makeLongShip(){
   enemies.push(ship);
   drawEverything();
 }
-document.getElementById("longShip").addEventListener("click",makeLongShip);
 
+function makeSomeShips(){
+  if(confirm("are you sure that you want to make some ships?")){
+    for(var i = 0; i < 10; i++){
+      makeDefaultShip();
+    }
+    for(var i = 0; i < 5; i++){
+      makeBigShip();
+    }
+    for(var i = 0; i < 4; i++){
+      makeLongShip();
+    }
+  }
+}
+
+document.getElementById("ship").addEventListener("click",makeSomeShips);
 
 
 

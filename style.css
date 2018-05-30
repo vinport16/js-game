@@ -2,6 +2,7 @@ body{
   padding: 0px;
   margin: 5px;
   background-color: lightblue;
+  font-family: sans-serif;
 }
 
 canvas{
@@ -22,6 +23,15 @@ table{
 button{
   width: 100%;
   border-radius: 10px;
+}
+
+button.pause{
+  font-weight: bold;
+  color: blue;
+}
+button.cancel{
+  font-weight: bold;
+  color: red;
 }
 
 div.textbox{

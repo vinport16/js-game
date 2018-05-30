@@ -185,20 +185,20 @@ function doGameEvents(){
     }
   }
 
-  //tenth wave at 350 seconds (very hard)
+  //tenth wave at 370 seconds (very hard)
   //20 big ships, 25 long ships, 30 default ships
-  if(gameTime == 350*20){
+  if(gameTime == 370*20){
     waveAlert(10);
     for(var i = 0; i < 20; i++){
       makeBigShip();
     }
   }
-  if(gameTime == 355*20){
+  if(gameTime == 375*20){
     for(var i = 0; i < 25; i++){
       makeLongShip();
     }
   }
-  if(gameTime == 360*20){
+  if(gameTime == 380*20){
     for(var i = 0; i < 30; i++){
       makeDefaultShip();
     }

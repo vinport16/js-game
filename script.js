@@ -44,14 +44,17 @@ function drawLine(v1, v2, stroke){
 
 function drawTower(o){
   drawCircle(o.position,o.radius,o.color,"rgba(255,255,100,1)");
-  //draw range
-  drawCircle(o.position, o.range, "rgba(0,255,0,0.08)", "rgba(255,255,255,0.0)");
   //draw health level
   var p1 = subtract(o.position,{x:10,y:(4+o.radius)});
   var p2 = {x:(p1.x+20),y:(p1.y)};
   drawLine(p1,p2,"rgba(200,50,50,1)");
   p2.x = p1.x + 20*(o.health/o.maxHealth);
   drawLine(p1,p2,"rgba(150,200,150,1)");
+}
+
+function drawRange(o){
+  //draw range
+  drawCircle(o.position, o.range, "rgba(0,255,0,0.06)", "rgba(255,255,255,0.0)");
 }
 
 function drawProtoTower(proto){
@@ -67,7 +70,7 @@ function drawProtoTower(proto){
 
   for(var j = 0; j < proto.connected.length; j++){
     var o = proto.connected[j];
-    drawLine(getCenter(proto),getCenter(o),"rgba(20,80,200,0.3)");
+    drawLine(getCenter(proto),getCenter(o),"rgba(20,80,200,1)");
   }
 
   //draw firing radius
@@ -103,7 +106,7 @@ function drawProtoBuilding(proto){
 
   for(var j = 0; j < proto.connected.length; j++){
     var o = proto.connected[j];
-    drawLine(getCenter(proto),getCenter(o),"rgba(20,80,200,0.3)");
+    drawLine(getCenter(proto),getCenter(o),"rgba(20,80,200,1)");
   }
 }
 
@@ -191,6 +194,20 @@ canvas.height = document.body.clientHeight - 10 ;
 
 var ctx = canvas.getContext("2d");
 
+function disableAllButtons(){
+  var buttons = document.getElementsByTagName("button");
+  for(var i = 0; i < buttons.length; i++){
+    buttons[i].disabled = true;
+  }
+}
+
+function enableAllButtons(){
+  var buttons = document.getElementsByTagName("button");
+  for(var i = 0; i < buttons.length; i++){
+    buttons[i].disabled = false;
+  }
+}
+
 var paused = false;
 function pause(){
   paused = !paused;
@@ -202,6 +219,7 @@ function pause(){
     document.getElementById("solarFarm").disabled = true;
     document.getElementById("heavyTower").disabled = true;
     document.getElementById("chaingunTower").disabled = true;
+    document.getElementById("seekingTower").disabled = true;
     document.getElementById("relay").disabled = true;
     document.getElementById("pause").innerHTML = "pause";
   }else{
@@ -212,6 +230,7 @@ function pause(){
     document.getElementById("solarFarm").disabled = false;
     document.getElementById("heavyTower").disabled = false;
     document.getElementById("chaingunTower").disabled = false;
+    document.getElementById("seekingTower").disabled = false;
     document.getElementById("relay").disabled = false;
     document.getElementById("pause").innerHTML = "resume";
   }
