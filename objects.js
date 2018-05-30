@@ -333,24 +333,56 @@ function checkVisibility(o,target){
 }
 
 function fire(o, target, enemy){
-  proj = {};
-  proj.type = "projectile";
-  proj.position = o.position;
-  proj.radius = o.projectile.radius;
-  proj.velocity = multiply(unitVector(subtract(getCenter(target),o.position)), o.projectile.speed);
-  proj.speed = o.projectile.speed;
-  proj.target = false;
-  proj.persist = o.projectile.persist;
-  if(o.projectile.target){
-    proj.target = target;
-  }
-  proj.damage = o.projectile.damage;
-  proj.color = o.projectile.color;
+  if(o.projectile.type == "projectile"){
+    var proj = {};
+    proj.type = "projectile";
+    proj.position = o.position;
+    proj.radius = o.projectile.radius;
+    proj.velocity = multiply(unitVector(subtract(getCenter(target),o.position)), o.projectile.speed);
+    proj.speed = o.projectile.speed;
+    proj.target = false;
+    proj.persist = o.projectile.persist;
+    if(o.projectile.target){
+      proj.target = target;
+    }
+    proj.damage = o.projectile.damage;
+    proj.color = o.projectile.color;
 
-  if(enemy){
-    enemies.push(proj);
-  }else{
-    objects.push(proj);
+    if(enemy){
+      enemies.push(proj);
+    }else{
+      objects.push(proj);
+    }
+  }else if(o.projectile.type == "ship"){ // always an enemy
+    var p = {};
+    p.type = "ship";
+    p.position = o.position;
+    p.radius = o.projectile.radius;
+    p.velocity = o.projectile.velocity;
+    p.target = false;
+    p.range = o.projectile.range;
+    p.maxHealth = o.projectile.maxHealth;
+    p.health = p.maxHealth;
+    p.bounty = o.projectile.bounty;
+    p.moveTarget = getClosestObject(o);
+    p.fireTarget = false;
+    p.fireCooldown = o.projectile.fireCooldown;
+    p.cooldownTimer = o.projectile.cooldownTimer;
+
+    var q = {};
+    q.type = "projectile";
+    q.position = false;
+    q.radius = o.projectile.projectile.radius;
+    q.speed = o.projectile.projectile.speed;
+    q.velocity = null;
+    q.target = false;
+    q.damage = o.projectile.projectile.damage;
+    q.color = o.projectile.projectile.color;
+
+    p.projectile = q;
+    p.laser = false;
+
+    enemies.push(p);
   }
 }
 
@@ -1357,6 +1389,55 @@ function makeLongShip(){
   drawEverything();
 }
 
+function makeMotherShip(){
+  ship = {};
+  ship.type = "ship";
+  ship.position = positionAnywhereAround();
+  ship.velocity = 0.5;
+  ship.radius = 20;
+  ship.range = 290;
+  ship.maxHealth = 600;
+  ship.health = ship.maxHealth;
+  ship.bounty = 200;
+  ship.moveTarget = getClosestObject(ship);
+  ship.fireTarget = false;
+  ship.fireCooldown = 30;
+  ship.cooldownTimer = 0;
+
+  var p = {};
+  p.type = "ship";
+  p.position = false;
+  p.radius = 8;
+  p.velocity = 2;
+  p.target = false;
+  p.range = 100;
+  p.maxHealth = 30;
+  p.health = p.maxHealth;
+  p.bounty = 8;
+  p.moveTarget = getClosestObject(ship);
+  p.fireTarget = false;
+  p.fireCooldown = 11;
+  p.cooldownTimer = 0;
+
+  var q = {};
+  q.type = "projectile";
+  q.position = false;
+  q.radius = 3;
+  q.speed = 8;
+  q.velocity = null;
+  q.target = false;
+  q.damage = 5;
+  q.color = "yellow";
+
+  p.projectile = q;
+  p.laser = false;
+
+  ship.projectile = p;
+
+  enemies.push(ship);
+  drawEverything();
+}
+
 function makeSomeShips(){
   if(confirm("are you sure that you want to make some ships?")){
     for(var i = 0; i < 10; i++){
@@ -1368,6 +1449,7 @@ function makeSomeShips(){
     for(var i = 0; i < 4; i++){
       makeLongShip();
     }
+    makeMotherShip();
   }
 }
 
