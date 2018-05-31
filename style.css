@@ -40,6 +40,12 @@ div.textbox{
   overflow-y: scroll;
 }
 
+div.message{
+  
+  font-size: 15pt;
+  background-color: lightblue;
+}
+
 div.text{
   padding: 5px;
 }

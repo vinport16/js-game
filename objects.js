@@ -386,6 +386,16 @@ function fire(o, target, enemy){
   }
 }
 
+function numShips(){
+  var n = 0;
+  for(var i = 0; i < enemies.length; i++){
+    if(enemies[i].type == "ship"){
+      n+=1;
+    }
+  }
+  return n;
+}
+
 function towerCheckAndFire(tower){
   var e = getClosestEnemy(tower);
   if(e && tower.cooldownTimer <= 0 && distance(tower.position,getCenter(e)) <= tower.range && getEnergyFor(tower,tower.fireEnergy)){
@@ -395,9 +405,7 @@ function towerCheckAndFire(tower){
 }
 
 function shipCheckAndFire(ship){
-  if(!ship.target || ship.target.destroyed){
-    ship.target = getClosestObject(ship);
-  }
+  ship.target = getClosestObject(ship);
   if(ship.target && ship.cooldownTimer <= 0 && distance(ship.position,getCenter(ship.target)) <= ship.range ){
     fire(ship,ship.target,true);
     ship.cooldownTimer = ship.fireCooldown;
@@ -749,10 +757,21 @@ function step(){
       if(e.moveTarget.destroyed){
         e.moveTarget = getClosestObject(e);
       }
-      if(e.moveTarget){
-        e.position = add(e.position,multiply(unitVector(subtract(getCenter(e.moveTarget),e.position)),e.velocity));
-      }else{
+      if(e.projectile.type == "ship" && e.moveTarget && distance(getCenter(e.moveTarget),e.position) < e.range-2){
+        //if ship produces more ships
         e.moveTarget = getClosestObject(e);
+        if(e.moveTarget){
+          //move in a circle around target
+          var towards = multiply(unitVector(subtract(getCenter(e.moveTarget),e.position)),e.velocity);
+          e.position = add(e.position,{x:towards.y, y:-towards.x});
+        }
+      }else{
+        //normal ships
+        if(e.moveTarget){
+          e.position = add(e.position,multiply(unitVector(subtract(getCenter(e.moveTarget),e.position)),e.velocity));
+        }else{
+          e.moveTarget = getClosestObject(e);
+        }
       }
     }
   }
@@ -1393,15 +1412,15 @@ function makeMotherShip(){
   ship = {};
   ship.type = "ship";
   ship.position = positionAnywhereAround();
-  ship.velocity = 0.5;
+  ship.velocity = 1;
   ship.radius = 20;
-  ship.range = 290;
+  ship.range = 240;
   ship.maxHealth = 600;
   ship.health = ship.maxHealth;
   ship.bounty = 200;
   ship.moveTarget = getClosestObject(ship);
   ship.fireTarget = false;
-  ship.fireCooldown = 30;
+  ship.fireCooldown = 40;
   ship.cooldownTimer = 0;
 
   var p = {};

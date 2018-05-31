@@ -137,6 +137,10 @@ function displayEnergy(){
   document.getElementById("amount").innerHTML ="&nbsp" + Math.round(getEnergyTotal()) + "e";
 }
 
+function writeMessage(message){
+  document.getElementById("message").innerHTML = message;
+}
+
 function displayGems(){
   document.getElementById("gems").innerHTML = gems + "G";
 }
