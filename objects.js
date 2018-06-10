@@ -86,11 +86,11 @@ var objects = []; // all of the objects under your control
 var enemies = []; // all of the objects under enemy control
 var activeHealPaths = []; // paths along which healing buildings are healing other objects
 var heal = true; // toggle repairs
-var gems = 1000; // start with 500 gems (money);
+var gems = 800; // start with this many gems (money);
 var prices = {};
-prices.defaultTower = 80;
-prices.rangedTower = 90;
-prices.heavyTower = 110;
+prices.defaultTower = 100;
+prices.rangedTower = 120;
+prices.heavyTower = 120;
 prices.chaingunTower = 100;
 prices.seekingTower = 200;
 prices.connectionTower = 10;
@@ -761,9 +761,11 @@ function step(){
         //if ship produces more ships
         e.moveTarget = getClosestObject(e);
         if(e.moveTarget){
-          //move in a circle around target
+          //move in a spiral towards target
           var towards = multiply(unitVector(subtract(getCenter(e.moveTarget),e.position)),e.velocity);
-          e.position = add(e.position,{x:towards.y, y:-towards.x});
+          var perp = {x:towards.y, y:-towards.x};
+          var spiral = rotateVector(perp,-15);
+          e.position = add(e.position,spiral);
         }
       }else{
         //normal ships

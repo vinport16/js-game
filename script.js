@@ -161,6 +161,41 @@ function showPrices(){
 
 }
 
+function describeBuilding(element,building){
+  var tip = "<span class=\"tooltip\">"+
+  "price: "+building.price+"G<br>"+
+  "health: "+building.maxHealth+"<br>"+
+  "energy capacity: "+building.energyMax+"e<br>"+
+  "energy production: "+(building.energyRate*20)+"e/s<br>";
+  if(building.heal){
+    tip +=
+    "heal: "+building.heal.healAmount+"<br>"+
+    "energy/heal: "+building.heal.energyReqired+"e<br>";
+  }
+  tip += "</span>";
+
+  element.innerHTML = element.innerHTML + tip;
+}
+
+function describeTower(element,tower){
+  var tip = "<span class=\"tooltip\">"+
+  "price: "+tower.price+"G<br>"+
+  "health: "+tower.maxHealth+"<br>"+
+  "range: "+tower.range+"<br>"+
+  "damage: "+tower.projectile.damage+"<br>"+
+  "fire rate: "+(20/tower.fireCooldown)+"/s<br>"+
+  "energy/fire: "+tower.fireEnergy+"e<br>";
+  if(tower.projectile.target){
+    tip += "seeking<br>";
+  }
+  if(tower.projectile.persist){
+    tip += "projectiles persist<br>";
+  }
+  tip += "</span>";
+
+  element.innerHTML = element.innerHTML + tip;
+}
+
 var zeroVector = {x:0,y:0};
 
 function getVector(e){
@@ -190,6 +225,14 @@ function distance(v1, v2){
 function unitVector(v){
   return divide(v, distance(zeroVector,v));
 }
+
+function rotateVector(vec, ang){
+    ang = -ang * (Math.PI/180);
+    var cos = Math.cos(ang);
+    var sin = Math.sin(ang);
+    return {x: Math.round(10000*(vec.x * cos - vec.y * sin))/10000, y: Math.round(10000*(vec.x * sin + vec.y * cos))/10000};
+}
+
 // setup
 
 var canvas = document.getElementById("canvas");

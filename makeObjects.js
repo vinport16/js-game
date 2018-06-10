@@ -1,5 +1,3 @@
-
-
 function makeBuilding(b){
   disableAllButtons();
   document.getElementById("cancel").disabled = false;
@@ -70,6 +68,7 @@ function makeDefaultBuilding(){
   makeBuilding(newDefaultBuilding());
 }
 document.getElementById("defaultBuilding").addEventListener("click",makeDefaultBuilding);
+describeBuilding(document.getElementById("defaultBuilding"),newDefaultBuilding());
 
 function newBattery(){
   var building = {};
@@ -95,6 +94,7 @@ function makeBattery(){
   makeBuilding(newBattery());
 }
 document.getElementById("battery").addEventListener("click",makeBattery);
+describeBuilding(document.getElementById("battery"),newBattery());
 
 function newSolarFarm(){
   var building = {};
@@ -137,6 +137,7 @@ function makeSolarFarm(){
   makeBuilding(newSolarFarm());
 }
 document.getElementById("solarFarm").addEventListener("click",makeSolarFarm);
+describeBuilding(document.getElementById("solarFarm"),newSolarFarm());
 
 function newRepairBuilding(){
   var building = {};
@@ -170,6 +171,7 @@ function makeRepairBuilding(){
   makeBuilding(newRepairBuilding());
 }
 document.getElementById("repairBuilding").addEventListener("click",makeRepairBuilding);
+describeBuilding(document.getElementById("repairBuilding"),newRepairBuilding());
 
 
 function makeTower(tower){
@@ -253,6 +255,7 @@ function makeDefaultTower(){
   makeTower(newDefaultTower());
 }
 document.getElementById("defaultTower").addEventListener("click",makeDefaultTower);
+describeTower(document.getElementById("defaultTower"),newDefaultTower());
 
 function newRangedTower(){
   var tower = {};
@@ -262,15 +265,15 @@ function newRangedTower(){
   tower.radius = 11;
   tower.price = prices.rangedTower;
   tower.color = "rgba(150,25,200,0.5)";
-  tower.range = 320;
+  tower.range = 330;
   tower.energyRange = 50;
   tower.connected = [];
   tower.activeConnections = [];
   tower.maxHealth = 60;
   tower.health = tower.maxHealth;
-  tower.fireCooldown = 15;
+  tower.fireCooldown = 20;
   tower.cooldownTimer = 0;
-  tower.fireEnergy = 3;
+  tower.fireEnergy = 12;
   tower.fire = null; // put fire function here (?) !!
 
   var p = {};
@@ -280,7 +283,7 @@ function newRangedTower(){
   p.speed = 13;
   p.velocity = null;
   p.target = true;
-  p.damage = 15;
+  p.damage = 45;
   p.color = "pink";
 
   tower.projectile = p;
@@ -300,6 +303,7 @@ function makeRangedTower(){
   makeTower(newRangedTower());
 }
 document.getElementById("rangedTower").addEventListener("click",makeRangedTower);
+describeTower(document.getElementById("rangedTower"),newRangedTower());
 
 function newHeavyTower(){
   var tower = {};
@@ -323,7 +327,7 @@ function newHeavyTower(){
   var p = {};
   p.type = "projectile";
   p.position = null;
-  p.radius = 8;
+  p.radius = 10;
   p.speed = 8;
   p.velocity = null;
   p.target = false;
@@ -348,6 +352,7 @@ function makeHeavyTower(){
   makeTower(newHeavyTower());
 }
 document.getElementById("heavyTower").addEventListener("click",makeHeavyTower);
+describeTower(document.getElementById("heavyTower"),newHeavyTower());
 
 function newChaingunTower(){
   var tower = {};
@@ -365,7 +370,7 @@ function newChaingunTower(){
   tower.health = tower.maxHealth;
   tower.fireCooldown = 2;
   tower.cooldownTimer = 0;
-  tower.fireEnergy = 3;
+  tower.fireEnergy = 2;
   tower.fire = null; // put fire function here (?) !!
 
   var p = {};
@@ -374,8 +379,8 @@ function newChaingunTower(){
   p.radius = 2;
   p.speed = 14;
   p.velocity = null;
-  p.target = false;
-  p.damage = 8;
+  p.target = true;
+  p.damage = 5;
   p.color = "white";
 
   tower.projectile = p;
@@ -434,6 +439,7 @@ function makeChaingunTower(){
   makeTower(newChaingunTower());
 }
 document.getElementById("chaingunTower").addEventListener("click",makeChaingunTower);
+describeTower(document.getElementById("chaingunTower"),newChaingunTower());
 
 function newSeekingTower(){
   var tower = {};
@@ -482,6 +488,7 @@ function makeSeekingTower(){
   makeTower(newSeekingTower());
 }
 document.getElementById("seekingTower").addEventListener("click",makeSeekingTower);
+describeTower(document.getElementById("seekingTower"),newSeekingTower());
 
 function newConnectionTower(){
   var tower = {};
@@ -529,7 +536,7 @@ function makeConnectionTower(){
   makeTower(newConnectionTower());
 }
 document.getElementById("relay").addEventListener("click",makeConnectionTower);
-
+describeTower(document.getElementById("relay"),newConnectionTower());
 
 function positionLeftOfScreen(){
   return {x: (Math.random()*20-50), y: (Math.random()*canvas.height)};
