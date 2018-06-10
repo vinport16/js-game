@@ -147,18 +147,18 @@ function displayGems(){
 
 function showPrices(){
   document.getElementById("text").innerHTML =
-    "<strong>Prices:</strong><br>"+
-    "default building: "+prices.defaultBuilding+"G<br>stores and produces energy, high health, heals a bit<br><br>"+
-    "battery: "+prices.battery+"G<br>stores a lot of energy<br><br>"+
-    "solar farm: "+prices.solarFarm+"G<br>produces a lot of energy<br><br>"+
-    "default tower: "+prices.defaultTower+"G<br>energy efficient, reliable<br><br>"+
-    "ranged tower: "+prices.rangedTower+"G<br>long range, low rate of fire, very energy efficient<br><br>"+
-    "heavy tower: "+prices.heavyTower+"G<br>lots of health, short range, lots of damage<br><br>"+
-    "chaingun tower: "+prices.chaingunTower+"G<br>lots of damage, not energy efficient<br><br>"+
-    "seeking tower: "+prices.seekingTower+"G<br>uses lots of energy to shoot one very powerful projectile<br><br>"+
-    "connection tower: "+prices.connectionTower+"G<br>can relay energy between buildings and towers<br><br>"+
-    "repair building: "+prices.repairBuilding+"G<br>good at healing other buildings/towers<br><br>";
-
+    "<strong>Prices:</strong><br><table class=\"prices\">"+
+    "<tr><td>default building:</td><td>"+prices.defaultBuilding+"G</td></tr>"+
+    "<tr><td>battery:</td><td>"+prices.battery+"G</td></tr>"+
+    "<tr><td>solar farm:</td><td>"+prices.solarFarm+"G</td></tr>"+
+    "<tr><td>default tower:</td><td>"+prices.defaultTower+"G</td></tr>"+
+    "<tr><td>ranged tower:</td><td>"+prices.rangedTower+"G</td></tr>"+
+    "<tr><td>heavy tower:</td><td>"+prices.heavyTower+"G</td></tr>"+
+    "<tr><td>chaingun tower:</td><td>"+prices.chaingunTower+"G</td></tr>"+
+    "<tr><td>seeking tower:</td><td>"+prices.seekingTower+"G</td></tr>"+
+    "<tr><td>connection tower:</td><td>"+prices.connectionTower+"G</td></tr>"+
+    "<tr><td>repair building:</td><td>"+prices.repairBuilding+"G</td></tr>"+
+    "</table>";
 }
 
 function describeBuilding(element,building){

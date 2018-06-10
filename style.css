@@ -20,6 +20,12 @@ div.display{
 table{
   width: 100%;
 }
+table.prices{
+  width:auto;
+  text-align: right;
+  font-family: monospace;
+  font-size: 18px;
+}
 
 button{
   width: 100%;
