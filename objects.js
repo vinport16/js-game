@@ -94,6 +94,7 @@ prices.rangedTower = 120;
 prices.heavyTower = 120;
 prices.chaingunTower = 100;
 prices.seekingTower = 200;
+prices.missileTower = 120;
 prices.connectionTower = 10;
 
 prices.defaultBuilding = 70;

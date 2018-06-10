@@ -287,6 +287,7 @@ function pause(){
     document.getElementById("seekingTower").disabled = true;
     document.getElementById("repairBuilding").disabled = true;
     document.getElementById("fusionGenerator").disabled = true;
+    document.getElementById("missileTower").disabled = true;
     document.getElementById("relay").disabled = true;
     document.getElementById("pause").innerHTML = "pause";
   }else{
@@ -300,6 +301,7 @@ function pause(){
     document.getElementById("seekingTower").disabled = false;
     document.getElementById("repairBuilding").disabled = false;
     document.getElementById("fusionGenerator").disabled = false;
+    document.getElementById("missileTower").disabled = false;
     document.getElementById("relay").disabled = false;
     document.getElementById("pause").innerHTML = "resume";
   }

@@ -518,6 +518,55 @@ function makeSeekingTower(){
 document.getElementById("seekingTower").addEventListener("click",makeSeekingTower);
 describeTower(document.getElementById("seekingTower"),newSeekingTower());
 
+function newMissileTower(){
+  var tower = {};
+  tower.type = "tower";
+  tower.name = "missule";
+  tower.position = null;
+  tower.radius = 9;
+  tower.price = prices.missileTower;
+  tower.color = "rgba(150,110,100,0.8)";
+  tower.range = 300;
+  tower.energyRange = 50;
+  tower.connected = [];
+  tower.activeConnections = [];
+  tower.maxHealth = 50;
+  tower.health = tower.maxHealth;
+  tower.fireCooldown = 40;
+  tower.cooldownTimer = 0;
+  tower.fireEnergy = 10;
+  tower.fire = null; // put fire function here (?) !!
+
+  var p = {};
+  p.type = "projectile";
+  p.position = null;
+  p.radius = 6;
+  p.speed = 5;
+  p.velocity = null;
+  p.target = true;
+  p.persist = true;
+  p.damage = 20;
+  p.color = "white";
+
+  tower.projectile = p;
+
+  var laser = {};
+  laser.type = "laser";
+  laser.startObject = tower;
+  laser.endObject = false;
+  laser.damage = 10;
+  laser.duration = 3;
+
+  tower.laser = laser;
+
+  return(tower);
+}
+function makeMissileTower(){
+  makeTower(newMissileTower());
+}
+document.getElementById("missileTower").addEventListener("click",makeMissileTower);
+describeTower(document.getElementById("missileTower"),newMissileTower());
+
 function newConnectionTower(){
   var tower = {};
   tower.type = "tower";
