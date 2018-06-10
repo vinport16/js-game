@@ -158,6 +158,7 @@ function showPrices(){
     "<tr><td>seeking tower:</td><td>"+prices.seekingTower+"G</td></tr>"+
     "<tr><td>connection tower:</td><td>"+prices.connectionTower+"G</td></tr>"+
     "<tr><td>repair building:</td><td>"+prices.repairBuilding+"G</td></tr>"+
+    "<tr><td>fusion generator:</td><td>"+prices.fusionGenerator+"G</td></tr>"+
     "</table>";
 }
 
@@ -170,7 +171,12 @@ function describeBuilding(element,building){
   if(building.heal){
     tip +=
     "heal: "+building.heal.healAmount+"<br>"+
-    "energy/heal: "+building.heal.energyReqired+"e<br>";
+    "energy/heal: "+building.heal.energyReqired+"e<br>"+
+    "heals/sec: "+20/building.heal.cooldown+"/s<br>";
+  }
+  if(building.activationEnergy){
+    tip +=
+    "activation energy: "+building.activationEnergy+"e<br>";
   }
   tip += "</span>";
 

@@ -58,8 +58,7 @@ div.message{
 
 div.text{
   padding: 5px;
-
-  height: 100%
+  height: auto;
 }
 
 div.gems{

@@ -57,8 +57,8 @@ function newDefaultBuilding(){
   rep.waitUntil = 0.6;
   rep.cooldown = 40;
   rep.cooldownTimer = 0;
-  rep.energyReqired = 10;
-  rep.healAmount = 3;
+  rep.energyReqired = 3;
+  rep.healAmount = 1;
 
   building.heal = rep;
 
@@ -69,6 +69,34 @@ function makeDefaultBuilding(){
 }
 document.getElementById("defaultBuilding").addEventListener("click",makeDefaultBuilding);
 describeBuilding(document.getElementById("defaultBuilding"),newDefaultBuilding());
+
+function newFusionGenerator(){
+  var building = {};
+  building.type = "building";
+  building.name = "fusion";
+  building.topLeft = {x:0,y:0};
+  building.bottomRight = {x:50,y:45};
+  building.price = prices.fusionGenerator;
+  building.energyRange = 30;
+  building.connected = [];
+  building.activeConnections = [];
+  building.maxHealth = 30;
+  building.health = building.maxHealth;
+  building.activationEnergy = 500;
+  building.energyRate = 1.5;
+  building.energyMax = 350;
+  building.energy = 0;
+  building.vital = false;
+
+  building.heal = false;
+
+  return(building);
+}
+function makeFusionGenerator(){
+  makeBuilding(newFusionGenerator());
+}
+document.getElementById("fusionGenerator").addEventListener("click",makeFusionGenerator);
+describeBuilding(document.getElementById("fusionGenerator"),newFusionGenerator());
 
 function newBattery(){
   var building = {};
@@ -160,7 +188,7 @@ function newRepairBuilding(){
   rep.waitUntil = 0.6;
   rep.cooldown = 20;
   rep.cooldownTimer = 0;
-  rep.energyReqired = 10;
+  rep.energyReqired = 8;
   rep.healAmount = 6;
 
   building.heal = rep;

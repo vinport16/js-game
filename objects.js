@@ -53,6 +53,7 @@ building:
  - health (integer)
  - energyRate (float) : how much energy can be produced per frame
  - energyMax (integer) : maximum energy storage
+ - acitvationEnergy : amount of energy it needs access to in order to produce energy
  - energy (integer) : amount of energy in storage
  - heal (object or false) : can this building repair other buildings?
    - heal object {
@@ -99,6 +100,7 @@ prices.defaultBuilding = 70;
 prices.battery = 100;
 prices.solarFarm = 200;
 prices.repairBuilding = 190;
+prices.fusionGenerator = 280;
 
 function getCenter(object){
   var center;
@@ -499,15 +501,30 @@ function doConnectedEnergyStorage(b){
 }
 
 function makeEnergy(building){
-  building.energy += building.energyRate;
-  if(building.energy > building.energyMax){
-    var sent = doConnectedEnergyStorage(building);
-    while(sent && building.energy > building.energyMax){
-      sent = doConnectedEnergyStorage(building);
+  if(building.activationEnergy){
+    if(getEnergyFor(building,building.activationEnergy)){
+      building.energy += building.energyRate + building.activationEnergy;
+      if(building.energy > building.energyMax){
+        var sent = doConnectedEnergyStorage(building);
+        while(sent && building.energy > building.energyMax){
+          sent = doConnectedEnergyStorage(building);
+        }
+      }
+      if(building.energy > building.energyMax){
+        building.energy = building.energyMax;
+      }
     }
-  }
-  if(building.energy > building.energyMax){
-    building.energy = building.energyMax;
+  }else{
+    building.energy += building.energyRate;
+    if(building.energy > building.energyMax){
+      var sent = doConnectedEnergyStorage(building);
+      while(sent && building.energy > building.energyMax){
+        sent = doConnectedEnergyStorage(building);
+      }
+    }
+    if(building.energy > building.energyMax){
+      building.energy = building.energyMax;
+    }
   }
 }
 
