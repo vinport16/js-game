@@ -736,7 +736,7 @@ function makeLongShip(){
   drawEverything();
 }
 
-function makeMotherShip(){
+function newMotherShip(){
   ship = {};
   ship.type = "ship";
   ship.position = positionAnywhereAround();
@@ -754,7 +754,7 @@ function makeMotherShip(){
   var p = {};
   p.type = "ship";
   p.position = false;
-  p.radius = 8;
+  p.radius = 5;
   p.velocity = 2;
   p.target = false;
   p.range = 100;
@@ -780,8 +780,61 @@ function makeMotherShip(){
   p.laser = false;
 
   ship.projectile = p;
+  return ship;
+}
+function makeMotherShip(){
+  enemies.push(newMotherShip);
+  drawEverything();
+}
 
-  enemies.push(ship);
+function newBigMotherShip(){
+  ship = {};
+  ship.type = "ship";
+  ship.position = positionAnywhereAround();
+  ship.velocity = 1;
+  ship.radius = 30;
+  ship.range = 320;
+  ship.maxHealth = 1000;
+  ship.health = ship.maxHealth;
+  ship.bounty = 400;
+  ship.moveTarget = getClosestObject(ship);
+  ship.fireTarget = false;
+  ship.fireCooldown = 80;
+  ship.cooldownTimer = 0;
+
+  var p = {};
+  p.type = "ship";
+  p.position = false;
+  p.radius = 14;
+  p.velocity = 1.5;
+  p.target = false;
+  p.range = 150;
+  p.maxHealth = 110;
+  p.health = p.maxHealth;
+  p.bounty = 15;
+  p.moveTarget = getClosestObject(ship);
+  p.fireTarget = false;
+  p.fireCooldown = 8;
+  p.cooldownTimer = 0;
+
+  var q = {};
+  q.type = "projectile";
+  q.position = false;
+  q.radius = 4;
+  q.speed = 6;
+  q.velocity = null;
+  q.target = false;
+  q.damage = 9;
+  q.color = "blue";
+
+  p.projectile = q;
+
+  ship.projectile = p;
+  ship.laser = false;
+  return ship;
+}
+function makeBigMotherShip(){
+  enemies.push(newBigMotherShip());
   drawEverything();
 }
 
@@ -797,6 +850,7 @@ function makeSomeShips(){
       makeLongShip();
     }
     makeMotherShip();
+    makeBigMotherShip();
   }
 }
 
