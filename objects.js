@@ -225,6 +225,40 @@ function checkCollisions(object){
   return false;
 }
 
+function destroyObject(object){
+  object.destroyed = true;
+  for(var i = objects.length-1; i >= 0; i--){
+    if(objects[i] == object){
+      //remove object from objects
+      objects.splice(i,1);
+    }else if(objects[i].connected){
+      //remobe object from energy connection web
+      for(var j = objects[i].connected.length; j >= 0; j--){
+        if(objects[i].connected[j] == object){
+          objects[i].connected.splice(j,1);
+        }
+      }
+    }
+  }
+}
+
+function getCollision(v){
+  for(var i = 0; i < objects.length; i++){
+    var o = objects[i];
+    if(o.type == "tower"){
+      var distance = Math.sqrt( (v.x-o.position.x)*(v.x-o.position.x) + (v.y-o.position.y)*(v.y-o.position.y) );
+      if(distance < o.radius){
+        return o;
+      }
+    }else if(o.type == "building"){
+      if(buildingTowerOverlap(o,{position: v, radius: 0})){
+        return o;
+      }
+    }
+  }
+  return false;
+}
+
 function getEnemyProjectileCollision(p){ //returns the object that the projectile has collided with and the index of that object in objects[]
   for(var i = 0; i < objects.length; i++){
     var o = objects[i];
@@ -286,8 +320,7 @@ function handleCollisions(){
       if(collision){
         if(!o.persist || collision[0].health >= o.damage){
           collision[0].health -= o.damage;
-          o.destroyed = true;
-          objects.splice(i,1);
+          destroyObject(o);
         }else{
           o.damage -= collision[0].health;
           collision[0].health = 0;
@@ -314,8 +347,7 @@ function handleCollisions(){
           collision[0].health = 0;
         }
         if(collision[0].health <= 0){
-          collision[0].destroyed = true;
-          objects.splice(collision[1],1); // remove destroyed object from game
+          destroyObject(collision[0]);
         }
       }
     }
@@ -751,8 +783,7 @@ function step(){
       moveProjectile(o);
       //delete projectiles that are far off screen
       if(o.position.x < -1000 || o.position.y < -1000 || o.position.x > 1000+canvas.width || o.position.y > 1000+canvas.height ){
-        o.destroyed = true;
-        objects.splice(i,1);
+        destroyObject(o);
       }
     }
   }
@@ -839,17 +870,6 @@ function step(){
     var e = enemies[i];
     if(e.type == "ship"){
       shipCheckAndFire(e);
-    }
-  }
-
-  //remove connections to objects that have been destroyed
-  for(var i = 0; i < objects.length; i++){
-    if(objects[i].connected != undefined){
-      for(var c = objects[i].connected.length-1; c >= 0; c--){
-        if(objects[i].connected[c].destroyed){
-          objects[i].connected.splice(c,1);
-        }
-      }
     }
   }
 

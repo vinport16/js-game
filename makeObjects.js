@@ -5,34 +5,69 @@ function makeBuilding(b){
     clearListeners();
     enableAllButtons();
   });
-    var offset = b.bottomRight;
-    canvas.addEventListener("mousemove", function(event){
-      drawEverything();
-      b.topLeft = getVector(event);
-      b.bottomRight = add(b.topLeft,offset);
-      //var proto = {type: "building",topLeft: tl, bottomRight: getVector(event), energyRange: 100};
-      drawProtoBuilding(b);
-    });
+  var offset = b.bottomRight;
+  canvas.addEventListener("mousemove", function(event){
+    drawEverything();
+    b.topLeft = getVector(event);
+    b.bottomRight = add(b.topLeft,offset);
+    //var proto = {type: "building",topLeft: tl, bottomRight: getVector(event), energyRange: 100};
+    drawProtoBuilding(b);
+  });
 
-    canvas.addEventListener("click", function(event){
-      b.topLeft = getVector(event);
-      b.bottomRight = add(b.topLeft,offset);
-      if(checkCollisions(b) || b.price > gems){
-        clearListeners();
-        enableAllButtons();
-      }else{
+  canvas.addEventListener("click", function(event){
+    b.topLeft = getVector(event);
+    b.bottomRight = add(b.topLeft,offset);
+    if(checkCollisions(b) || b.price > gems){
+      clearListeners();
+      enableAllButtons();
+    }else{
 
-        connectToAll(b);
+      connectToAll(b);
 
-        objects.push(b);
+      objects.push(b);
 
-        gems -= b.price;
+      gems -= b.price;
 
-        clearListeners();
-        enableAllButtons();
+      clearListeners();
+      enableAllButtons();
+      displayEnergy();
+    }
+  });
+
+}
+
+function selectObject(){
+  disableAllButtons()
+  document.getElementById("cancel").disabled = false;
+  document.getElementById("cancel").addEventListener("click",function(){
+    clearListeners();
+    enableAllButtons();
+  });
+
+  canvas.addEventListener("click", function(event){
+
+    var obj = getCollision(getVector(event));
+
+    if(obj){
+      // how much can you sell it for?
+      // half original price * % remaining health + energy/3
+      var price = (obj.price/2) * (obj.health/obj.maxHealth);
+      if(obj.energyMax){
+        price += obj.energy * 0.33;
+      }
+      if(!price){
+        price = 0;
+      }
+      price = Math.round(price);
+      if(confirm("Do you want to sell this "+obj.type+" for "+price+"G?")){
+        destroyObject(obj);
+        gems += price;
         displayEnergy();
       }
-    });
+      clearListeners();
+      enableAllButtons();
+    }
+  });
 
 }
 
@@ -855,3 +890,4 @@ function makeSomeShips(){
 }
 
 document.getElementById("ship").addEventListener("click",makeSomeShips);
+document.getElementById("selectObject").addEventListener("click",selectObject);

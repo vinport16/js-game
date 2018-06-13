@@ -289,6 +289,7 @@ function pause(){
     document.getElementById("fusionGenerator").disabled = true;
     document.getElementById("missileTower").disabled = true;
     document.getElementById("relay").disabled = true;
+    document.getElementById("selectObject").disabled = true;
     document.getElementById("pause").innerHTML = "pause";
   }else{
     document.getElementById("defaultBuilding").disabled = false;
@@ -303,6 +304,7 @@ function pause(){
     document.getElementById("fusionGenerator").disabled = false;
     document.getElementById("missileTower").disabled = false;
     document.getElementById("relay").disabled = false;
+    document.getElementById("selectObject").disabled = false;
     document.getElementById("pause").innerHTML = "resume";
   }
 }
