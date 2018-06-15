@@ -1,4 +1,5 @@
 <h1>Tower Defense Game in JavaScript</h1>
+
 ![still of gameplay](https://i.imgur.com/qcqJWDS.jpg)
 
 Includes:
