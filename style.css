@@ -35,6 +35,18 @@ button{
   background: linear-gradient(160deg,rgba(210,180,220,0.5),rgba(200,150,250,0.5));
 }
 
+button.building{
+  background: linear-gradient(160deg,rgba(190,160,220,0.7),rgba(120,120,250,0.7));
+}
+
+button.tower1{
+  background: linear-gradient(160deg,rgba(220,220,200,1),rgba(220,220,100,1));
+}
+
+button.tower2{
+  background: linear-gradient(160deg,rgba(255,200,100,1),rgba(230,140,100,1));
+}
+
 button.pause{
   font-weight: bold;
   color: blue;

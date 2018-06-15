@@ -417,6 +417,55 @@ function makeHeavyTower(){
 document.getElementById("heavyTower").addEventListener("click",makeHeavyTower);
 describeTower(document.getElementById("heavyTower"),newHeavyTower());
 
+function newGoliathTower(){
+  var tower = {};
+  tower.type = "tower";
+  tower.name = "goliath";
+  tower.position = null;
+  tower.radius = 35;
+  tower.price = prices.goliathTower;
+  tower.color = "rgba(100,50,150,0.5)";
+  tower.range = 120;
+  tower.energyRange = 50;
+  tower.connected = [];
+  tower.activeConnections = [];
+  tower.maxHealth = 600;
+  tower.health = tower.maxHealth;
+  tower.fireCooldown = 50;
+  tower.cooldownTimer = 0;
+  tower.fireEnergy = 300;
+  tower.fire = null; // put fire function here (?) !!
+
+  var p = {};
+  p.type = "projectile";
+  p.position = null;
+  p.radius = 110;
+  p.speed = 1.5;
+  p.velocity = null;
+  p.target = false;
+  p.damage = 550;
+  p.persist = true;
+  p.color = "rgba(255,100,170,0.7)";
+
+  tower.projectile = p;
+
+  var laser = {};
+  laser.type = "laser";
+  laser.startObject = tower;
+  laser.endObject = false;
+  laser.damage = 10;
+  laser.duration = 3;
+
+  tower.laser = laser;
+
+  return(tower);
+}
+function makeGoliathTower(){
+  makeTower(newGoliathTower());
+}
+document.getElementById("goliathTower").addEventListener("click",makeGoliathTower);
+describeTower(document.getElementById("goliathTower"),newGoliathTower());
+
 function newChaingunTower(){
   var tower = {};
   tower.type = "tower";
