@@ -1,4 +1,5 @@
 <h1>Tower Defense Game in JavaScript</h1>
+![still of gameplay](https://imgur.com/a/hyHz5f3)
 
 Includes:
 - variety of towers (to defend your buildings)
