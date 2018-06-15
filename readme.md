@@ -6,7 +6,8 @@ Includes:
 - variety of enemy ships (to attack your structures)
 - network of wires (for energy transfer)
 - currency (to buy towers and buildings)
-- 13 levels/waves
+- ability to sell structures
+- 14 levels/waves
 
 To be added:
 - upgrades for buildings and towers (?)
